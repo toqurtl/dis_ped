@@ -1,0 +1,22 @@
+{
+    "path":{
+        "vid_folder_path": "D:\\inseok\\workspace\\pandemic_vid\\video_data\\processing\\new",
+        "result_folder_path": "D:\\inseok\\workspace\\pandemic_vid\\result\\new"
+    },
+    "obstacles":[
+        [5.15, 5.15, -8, 16],
+        [-1.44, -1.44, -10, -1.2], 
+        [-1.44, -1.44, 0, 6], 
+        [-1.44, -1.44, 7.2, 16],
+        [-1.44, 0, 7.2, 7.2],
+        [0, 0, 7.2, 8.2],
+        [-1.44, 0, 8.2, 8.2],
+        [-1.44, 0, 0, 0],
+        [0, 0, 0, 1],
+        [-1.44, 0, 1, 1]
+    ],
+    "forces":{
+        "force_save": true
+    }
+
+}
