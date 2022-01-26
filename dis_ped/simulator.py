@@ -88,7 +88,7 @@ class Simulator(object):
             if is_finished: 
                 break
 
-            if self.time_step>300:
+            if self.time_step>1000:
                 break
         return
 
@@ -156,6 +156,16 @@ class Simulator(object):
         with open(file_path, 'w') as f:
             json.dump(result_data, f, indent=4)
         return
+
+    def summary_to_json(self, file_path, success):
+        data = {}
+        data["success"] = success
+        
+        with open(file_path, 'w') as f:
+            json.dump(data, f, indent=4)
+        return
+
+        
         
         
 

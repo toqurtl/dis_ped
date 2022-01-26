@@ -14,7 +14,7 @@ if len(sys.argv) > 2:
 else:
     force_idx = str(0)
     
-file_finder = FileFinder("setting.json")
+file_finder = FileFinder("setting_2.json")
 trajectory_path = file_finder.simul_result_path(idx, force_idx)
 gt_path = file_finder.gt_path(idx)
 valid_path = file_finder.valid_path(idx, force_idx)

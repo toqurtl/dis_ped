@@ -7,7 +7,7 @@ from dis_ped.app.filefinder import FileFinder
 
 class Experiment(object):
     def __init__(self, config_path):
-        with open(config_path, 'r') as f:
+        with open(config_path, 'r', encoding="UTF-8") as f:
             self.cfg = json.load(f)
         
         self.file_finder = FileFinder(config_path)
@@ -16,9 +16,15 @@ class Experiment(object):
 
     @property
     def video(self) -> VideoData:
-        hp_path = self.file_finder.hp_path(self.idx)
-        vp_path = self.file_finder.vp_path(self.idx)
-        return VideoData(hp_path, vp_path, self.idx)
+        try:
+            hp_path = self.file_finder.hp_path(self.idx)
+            vp_path = self.file_finder.vp_path(self.idx)        
+            v = VideoData(hp_path, vp_path, self.idx)
+        except FileNotFoundError:
+            hp_path = self.file_finder.hp_path_2(self.idx)
+            vp_path = self.file_finder.vp_path_2(self.idx)        
+            v = VideoData(hp_path, vp_path, self.idx)            
+        return v
         
     @property
     def peds(self):

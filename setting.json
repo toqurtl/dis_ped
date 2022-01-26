@@ -1,6 +1,6 @@
 {
     "path":{
-        "vid_folder_path": "D:\\inseok\\workspace\\pandemic_vid\\video_data\\processing\\new",
+        "vid_folder_path": "D:\\OneDrive\\연구\\pandemic\\data\\ped_texas\\opposite_new",
         "result_folder_path": "D:\\inseok\\workspace\\pandemic_vid\\result\\new"
     },
     "obstacles":[
@@ -17,6 +17,9 @@
     ],
     "forces":{
         "force_save": true
+    },
+    "condition":{
+        "simul_time_threshold": 1000
     }
 
 }
