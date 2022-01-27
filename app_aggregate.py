@@ -10,6 +10,7 @@ first_row = []
 
 first_row += ["vid_idx", "success", "num_person", "time_1", "time_2", "time_3"]
 first_row += ["ade_1", "ade_2", "ade_3", "social_1", "social_2","social_3"]
+first_row += ["dtw_1", "dtw_2", "dtw_3"]
 
 f = open(finder.result_csv_path, "w", newline='')
 wr = csv.writer(f)
@@ -36,6 +37,9 @@ for compare_path in finder.get_compare_json_path_list():
             row.append(s)
 
         for s in data["social"].values():
+            row.append(s)
+
+        for s in data["dtw"].values():
             row.append(s)
     else:
         for i in range(0, 10):

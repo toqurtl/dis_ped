@@ -2,6 +2,8 @@ import json
 import numpy as np
 from dis_ped.video.parameters import DataIndex as Index
 from dis_ped.video import result_data_func
+from scipy.spatial.distance import euclidean
+from fastdtw import fastdtw
 
 class ResultData(object):
     def __init__(self, origin_path, gt_path):
@@ -123,18 +125,49 @@ class ResultData(object):
             avg += ctn / total_time
         return avg / self.num_person
 
+    def dtw_of_person(self, person_idx):
+        origin_person_data = self.origin_states[:, person_idx]
+        gt_person_data = self.gt_states[:, person_idx]
+        start, finish = self.ade_range(person_idx)
+        traj_x = origin_person_data[start:finish+1, Index.px.index] 
+        traj_y = origin_person_data[start:finish+1, Index.py.index]
+        
+        gt_x = gt_person_data[start:finish+1, Index.px.index]
+        gt_y = gt_person_data[start:finish+1, Index.py.index]        
+        
+        try:        
+            traj = np.column_stack((traj_x, traj_y))
+            gt = np.column_stack((gt_x, gt_y))
+            distance, path = fastdtw(traj, gt, dist=euclidean)
+
+        except ValueError:
+            traj_x, traj_y = traj_x[:-1], traj_y[:-1]
+            traj = np.column_stack((traj_x, traj_y))
+            gt = np.column_stack((gt_x, gt_y))
+            distance, path = fastdtw(traj, gt, dist=euclidean)
+
+        return distance
+
+    def dtw_of_scene(self):
+        dtw_sum = 0
+        for person_idx in range(0, self.num_person):
+            dtw_sum += self.dtw_of_person(person_idx)
+        return dtw_sum / self.num_person
+
     def result(self, vid_id, force_id):
         data = {}
         data["basic"] = {}
         data["result"] = {}
         data["basic"]["vid_id"] = vid_id
         data["basic"]["num_person"] = self.num_person
-        data["basic"]["gt_time"] = len(self.gt_data)
+        data["basic"]["gt_time"] = len(self.gt_data)        
         data["result"]["force_id"] = int(force_id)
         data["result"]["simulation_time"] = len(self.origin_data)
         data["result"]["ade"] = self.ade_of_scene()
         data["result"]["fde"] = 0
+        data["result"]["dtw"] = self.dtw_of_scene()
         # TODO - 추후 목표 distance 설정
+
         data["result"]["social"] = self.risk_index_of_scene(2)
         return data
 

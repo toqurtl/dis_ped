@@ -15,6 +15,7 @@ if finder.is_comparable(idx):
     compare_data["state"]["success"] = True   
     compare_data["simul_time"] = {}
     compare_data["ade"] = {}
+    compare_data["dtw"] = {}
     compare_data["social"] = {}
     for force_idx in force_idx_list:
         with open(finder.valid_path(idx, force_idx), 'r') as f:
@@ -29,6 +30,7 @@ if finder.is_comparable(idx):
 
         compare_data["simul_time"][force_idx] = data["result"]["simulation_time"]
         compare_data["ade"][force_idx] = data["result"]["ade"]
+        compare_data["dtw"][force_idx] = data["result"]["dtw"]
         compare_data["social"][force_idx] = data["result"]["social"]
         compare_data["state"]["num_person"] = data["basic"]["num_person"]
     with open(finder.compare_path(idx), 'w') as f:
