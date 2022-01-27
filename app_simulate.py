@@ -9,16 +9,14 @@ import sys
 np.set_printoptions(formatter={'float_kind': lambda x: "{0:0.3f}".format(x)})
 
 idx = sys.argv[1]
-if len(sys.argv) > 2:
-    force_idx = int(sys.argv[2])
-else:
-    force_idx = 0
+force_idx = int(sys.argv[2])
+file_path = sys.argv[3]
 
-file_finder = FileFinder("setting_2.json")
+file_finder = FileFinder(file_path)
 
 try:    
 
-    exp = Experiment("setting_2.json")
+    exp = Experiment(file_path)
     exp.set_experiment(idx, force_idx)
     exp.save_vid_data()
 

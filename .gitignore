@@ -1,6 +1,7 @@
 # file
 *.kva
 playground.py
+*.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

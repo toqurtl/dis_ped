@@ -1,10 +1,11 @@
 from dis_ped.app.filefinder import FileFinder
-import os
+import sys
 import json
 import csv
 
+file_path = sys.argv[1]
 
-finder = FileFinder("setting_2.json")
+finder = FileFinder(file_path)
 first_row = []
 
 first_row += ["vid_idx", "success", "num_person", "time_1", "time_2", "time_3"]
@@ -16,16 +17,18 @@ wr.writerow(first_row)
 
 for compare_path in finder.get_compare_json_path_list():
     idx = compare_path.split("\\")[-2]
-    
-    with open(finder.basic_path(idx), "r", encoding="UTF-8") as f:
-        num_person = json.load(f)["basic"]["num_person"]
 
     with open(compare_path, "r", encoding="UTF-8") as f:
         data = json.load(f)
 
     success = data["state"]["success"]
-    row = [idx, success, num_person]
+    row = [idx, success]
     if success:
+        with open(finder.basic_path(idx), "r", encoding="UTF-8") as f:
+            num_person = json.load(f)["basic"]["num_person"]
+
+        row.append(num_person)
+    
         for s in data["simul_time"].values():
             row.append(s)
         
@@ -35,7 +38,7 @@ for compare_path in finder.get_compare_json_path_list():
         for s in data["social"].values():
             row.append(s)
     else:
-        for i in range(0, 9):
+        for i in range(0, 10):
             row.append(0)
     wr.writerow(row)
 f.close()

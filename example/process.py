@@ -1,7 +1,7 @@
 import os
 from dis_ped.app.filefinder import FileFinder
 
-finder = FileFinder("setting_2.json")
+finder = FileFinder("setting.json")
 
 print("start")
 

@@ -3,8 +3,9 @@ import sys
 import json
 
 idx = sys.argv[1]
+file_path = sys.argv[2]
 
-finder = FileFinder("setting_2.json")
+finder = FileFinder(file_path)
 
 force_idx_list = finder.get_force_folder_list(idx)
 
