@@ -252,6 +252,7 @@ class DesiredForce(Force):
 
 
 class SocialForce(Force):
+    ## Moussaid et al. 2009
     """Calculates the social force between this agent and all the other agents
     belonging to the same scene.
     It iterates over all agents inside the scene, has therefore the complexity
@@ -269,7 +270,7 @@ class SocialForce(Force):
         n = self.config("n", 2)
         n_prime = self.config("n_prime", 3)
 
-        pos_diff = stateutils.each_diff(self.peds.pos())  # n*(n-1)x2 other - self        
+        pos_diff = stateutils.each_diff(self.peds.pos())  # n*(n-1)x2 other - self
         diff_direction, diff_length = stateutils.normalize(pos_diff)
         vel_diff = -1.0 * stateutils.each_diff(self.peds.vel())  # n*(n-1)x2 self - other
         
