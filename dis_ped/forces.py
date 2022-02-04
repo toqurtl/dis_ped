@@ -25,14 +25,15 @@ class Force(ABC):
         self.peds = None
         self.factor = 1.0
         self.config = Config()
+        self.setting = None
 
-    def init(self, scene, config):
+    def init(self, scene, config, setting):    
         """Load config and scene"""
         # load the sub field corresponding to the force name from global confgi file        
         self.config = config.sub_config(camel_to_snake(type(self).__name__))
-        if self.config:
-            self.factor = self.config("factor", 1.0)
-
+        # self.config = setting[self.name()]
+        # if self.config:
+        #     self.factor = self.config("factor", 1.0)        
         self.scene = scene
         self.peds = self.scene.peds
 
@@ -43,11 +44,22 @@ class Force(ABC):
         """
         raise NotImplementedError
 
+    @abstractmethod
+    def _name(self):
+        """Abstract class to get social forces
+            return: an array of force vectors for each pedestrians
+        """
+        raise NotImplementedError
+
     def get_force(self, debug=False):
         force = self._get_force()
         if debug:
             logger.debug(f"{camel_to_snake(type(self).__name__)}:\n {repr(force)}")
         return force
+
+    def name(self):
+        name = self._name()
+        return name
 
 
 class GoalAttractiveForce(Force):
@@ -62,6 +74,9 @@ class GoalAttractiveForce(Force):
             )
         )        
         return F0 * self.factor
+    
+    def _name(self):
+        return "goal_attractive_force"
 
 
 class PedRepulsiveForce(Force):
@@ -80,6 +95,9 @@ class PedRepulsiveForce(Force):
         F_ab = w * f_ab
         return np.sum(F_ab, axis=1) * self.factor * 10
 
+    def _name(self):
+        return "ped_repulsive_force"
+
 
 class SpaceRepulsiveForce(Force):
     """obstacles to ped repulsive force"""
@@ -93,6 +111,9 @@ class SpaceRepulsiveForce(Force):
             )
             F_aB = -1.0 * potential_func.grad_r_aB(self.peds.state)
         return np.sum(F_aB, axis=1) * self.factor
+        
+    def _name(self):
+        return "space_repulsive_force"
 
 
 class GroupCoherenceForce(Force):
@@ -111,6 +132,8 @@ class GroupCoherenceForce(Force):
                 forces[group, :] += vectors
         return forces * self.factor
 
+    def _name(self):
+        return "group_coherence_force"
 
 class GroupCoherenceForceAlt(Force):
     """ Alternative group coherence force as specified in pedsim_ros"""
@@ -127,6 +150,9 @@ class GroupCoherenceForceAlt(Force):
                 softened_factor = (np.tanh(norms - threshold) + 1) / 2
                 forces[group, :] += (force_vec.T * softened_factor).T
         return forces * self.factor
+    
+    def _name(self):
+        return "group_coherence_force_alt"
 
 
 class GroupRepulsiveForce(Force):
@@ -147,6 +173,8 @@ class GroupRepulsiveForce(Force):
 
         return forces * self.factor
 
+    def _name(self):
+        return "group_repulsive_force"
 
 class GroupGazeForce(Force):
     """Group gaze force"""
@@ -186,6 +214,8 @@ class GroupGazeForce(Force):
 
         return forces * self.factor
 
+    def _name(self):
+        return "group_gaze_force"
 
 class GroupGazeForceAlt(Force):
     """Group gaze force"""
@@ -226,6 +256,9 @@ class GroupGazeForceAlt(Force):
 
         return forces * self.factor
 
+    def _name(self):
+        return "group_gaze_force_alt"
+
 
 class DesiredForce(Force):
     """Calculates the force between this agent and the next assigned waypoint.
@@ -250,6 +283,8 @@ class DesiredForce(Force):
         force /= relexation_time
         return force * self.factor
 
+    def _name(self):
+        return "desired_force"
 
 class SocialForce(Force):
     ## Moussaid et al. 2009
@@ -300,6 +335,8 @@ class SocialForce(Force):
         force = np.sum(force.reshape((self.peds.size(), -1, 2)), axis=1)        
         return force * self.factor
 
+    def _name(self):
+        return "social_force"
 
 class ObstacleForce(Force):
     """Calculates the force between this agent and the nearest obstacle in this
@@ -329,6 +366,9 @@ class ObstacleForce(Force):
         # TODO- obstacle force가 너무 세면 목적지에 잘 가지 못하는 문제 발생
         return force * 1.5
 
+    def _name(self):
+        return "obstacle_force"
+
 class Myforce(Force):
     def _get_force(self):
         # fov = CustomUtils.field_of_view(self.peds, self.scene.env)
@@ -347,3 +387,6 @@ class Myforce(Force):
         term = np.repeat(np.expand_dims(term, axis=2), 2, axis=2)
         e_ij = CustomUtils.ped_directions(self.peds)          
         return np.sum(e_ij * term, axis=1)
+
+    def _name(self):
+        return "my_force"

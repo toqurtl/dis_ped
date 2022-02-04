@@ -5,8 +5,18 @@ from dis_ped.pedstate import PedState
 from dis_ped import forces
 from dis_ped.video.peds import Pedestrians
 from dis_ped.update_manager import UpdateManager
+from dis_ped.app.func import Experiment
 import numpy as np
 import json
+
+force_dict={
+    "desired_force": forces.DesiredForce(),
+    "obstacle_force": forces.ObstacleForce(),
+    "ped_repulsive_force": forces.PedRepulsiveForce(),
+    "social_force": forces.SocialForce(),
+    "my_force": forces.Myforce()
+}
+
 
 ped_force_dict={
     0: forces.Myforce(),
@@ -16,23 +26,27 @@ ped_force_dict={
 
 class Simulator(object):
 
-    def __init__(self, peds_info: Pedestrians, groups=None, obstacles=None, time_table=None, config_file=None, force_idx=0):
+    def __init__(self, exp: Experiment, groups=None, config_file=None, force_idx=0, setting=None):
         # Config 읽어보는 부분 -> 제일 마지막에 대대적으로 수정 ㄱ
         self.config = DefaultConfig()
-        if config_file:
-            self.config.load_config(config_file)        
-        self.scene_config = self.config.sub_config("scene")
-        
+        self.setting = setting
+        # if config_file:
+        #     self.config.load_config(config_file)        
+        # # self.scene_config = self.config.sub_config("scene")
+        self.scene_config = exp.scene_config
+        self.force_config = exp.force_config
         # 시뮬레이션 전체를 관장하는 것
-        self.peds_info = peds_info        
+        self.peds_info = exp.peds     
         self.time_step = 0
         
         # PedState. 다음 스텝을 계산해주는 계산기
-        self.peds = PedState(self.config)
-        self.env = EnvState(obstacles, self.config("resolution", 10.0))
+        # self.peds = PedState(self.config)
+        self.peds = PedState(self.scene_config)
+        # self.env = EnvState(exp.obstacle, self.config("resolution", 10.0))
+        self.env = EnvState(exp.obstacle, self.scene_config["resolution"])
         self.force_idx = force_idx
 
-        self.time_table = time_table
+        self.time_table = exp.video.time_table
         self.step_width_list = []
 
         self.experiment_force_list = []
@@ -54,11 +68,11 @@ class Simulator(object):
         force_list.append(ped_force_dict[self.force_idx])
 
         group_forces = []
-        if self.scene_config("enable_group"):
+        if self.scene_config["enable_group"]:
             force_list += group_forces
 
         for force in force_list:
-            force.init(self, self.config)        
+            force.init(self, self.config, self.force_config["parameters"])        
         self.forces = force_list
         return
 

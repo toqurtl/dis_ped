@@ -21,9 +21,7 @@ try:
     exp.save_vid_data()
 
     s = Simulator(
-        exp.peds,
-        obstacles=exp.obstacle,
-        time_table=exp.video.time_table,
+        exp,
         force_idx=force_idx
     )
 
@@ -36,15 +34,16 @@ try:
     else:
         file_finder.summary_to_json(idx, force_idx, True)
 
-        # with SceneVisualizer(s.peds, s, exp.animation_path) as sv:
-        #     sv.animate()        
+        with SceneVisualizer(s.peds, s, exp.animation_path) as sv:
+            sv.animate()        
 
-        # with SceneVisualizer(s.peds, s, exp.plot_path) as sv:
-        #     sv.plot()
+        with SceneVisualizer(s.peds, s, exp.plot_path) as sv:
+            sv.plot()
 except Exception as e:
     file_finder.summary_to_json(idx, force_idx, False)
     print("error during simulation")
     print(e)
+    e.with_traceback()
     
 
 

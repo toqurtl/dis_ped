@@ -1,9 +1,15 @@
 import json
 import numpy as np
 from dis_ped.video.parameters import DataIndex as Index
-from dis_ped.video import result_data_func
 from scipy.spatial.distance import euclidean
 from fastdtw import fastdtw
+
+
+def get_distance(data, p_idx_1, p_idx_2):
+    px_1, py_1 = data[p_idx_1][Index.px.index], data[p_idx_1][Index.py.index]
+    px_2, py_2 = data[p_idx_2][Index.px.index], data[p_idx_2][Index.py.index]
+    return ((px_1-px_2)**2 + (py_1-py_2)**2)**0.5
+
 
 class ResultData(object):
     def __init__(self, origin_path, gt_path):
@@ -111,7 +117,7 @@ class ResultData(object):
             for idx, person_data in enumerate(data):
                 is_visible = person_data[Index.visible.index] == 1
                 if idx is not person_idx and is_visible:
-                    dis = result_data_func.distance(data, person_idx, idx)
+                    dis = get_distance(data, person_idx, idx)
                     if dis < distance:
                         ctn += 1
                         check_data.append(time)

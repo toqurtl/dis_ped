@@ -49,6 +49,18 @@ class Experiment(object):
     def plot_path(self):
         return self.file_finder.plot_path(self.idx, self.force_idx)
 
+    @property
+    def force_config(self):
+        return self.cfg["forces"]
+
+    @property
+    def scene_config(self):
+        return self.cfg["scene"]
+
+    @property
+    def simul_config(self):
+        return self.cfg["condition"]
+
     def set_experiment(self, idx, force_idx):
         self.idx = idx
         self.force_idx = force_idx
