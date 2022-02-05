@@ -8,11 +8,7 @@ from dis_ped.utils import stateutils
 class PedState:
     """Tracks the state of pedstrains and social groups"""
 
-    def __init__(self, config):
-        # self.default_tau = config("tau", 0.5)
-        # self.step_width = config("step_width", 0.133)
-        # self.agent_radius = config("agent_radius", 0.35)
-        # self.max_speed_multiplier = config("max_speed_multiplier", 1.1)
+    def __init__(self, config):        
         self.default_tau = config["tau"]
         self.step_width = config["step_width"]
         self.agent_radius = config["agent_radius"]

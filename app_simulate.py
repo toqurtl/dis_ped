@@ -34,11 +34,11 @@ try:
     else:
         file_finder.summary_to_json(idx, force_idx, True)
 
-        with SceneVisualizer(s.peds, s, exp.animation_path) as sv:
-            sv.animate()        
+        # with SceneVisualizer(s.peds, s, exp.animation_path) as sv:
+        #     sv.animate()        
 
-        with SceneVisualizer(s.peds, s, exp.plot_path) as sv:
-            sv.plot()
+        # with SceneVisualizer(s.peds, s, exp.plot_path) as sv:
+        #     sv.plot()
 except Exception as e:
     file_finder.summary_to_json(idx, force_idx, False)
     print("error during simulation")

@@ -23,17 +23,13 @@ class Force(ABC):
         super().__init__()
         self.scene = None
         self.peds = None
-        self.factor = 1.0
-        self.config = Config()
-        self.setting = None
+        self.factor = 1.0        
+        self.config = None
 
-    def init(self, scene, config, setting):    
+    def init(self, scene, config):    
         """Load config and scene"""
-        # load the sub field corresponding to the force name from global confgi file        
-        self.config = config.sub_config(camel_to_snake(type(self).__name__))
-        # self.config = setting[self.name()]
-        # if self.config:
-        #     self.factor = self.config("factor", 1.0)        
+        self.config = config[self.name()]  
+        self.factor = self.config["factor"]      
         self.scene = scene
         self.peds = self.scene.peds
 
@@ -83,13 +79,13 @@ class PedRepulsiveForce(Force):
     """Ped to ped repulsive force"""
 
     def _get_force(self):
-        potential_func = PedPedPotential(
-            self.peds.step_width, v0=self.config("v0"), sigma=self.config("sigma"),
+        potential_func = PedPedPotential(            
+            self.peds.step_width, v0=self.config["v0"], sigma=self.config["sigma"]
         )
         
        
         f_ab = -1.0 * potential_func.grad_r_ab(self.peds.state)
-        fov = FieldOfView(phi=self.config("fov_phi"), out_of_view_factor=self.config("fov_factor"),)
+        fov = FieldOfView(phi=self.config["fov_phi"], out_of_view_factor=self.config["fov_factor"],)
         
         w = np.expand_dims(fov(self.peds.desired_directions(), -f_ab), -1)        
         F_ab = w * f_ab
@@ -107,7 +103,7 @@ class SpaceRepulsiveForce(Force):
             F_aB = np.zeros((self.peds.size(), 0, 2))
         else:
             potential_func = PedSpacePotential(
-                self.scene.get_obstacles(), u0=self.config("u0"), r=self.config("r")
+                self.scene.get_obstacles(), u0=self.config["u0"], r=self.config["r"]
             )
             F_aB = -1.0 * potential_func.grad_r_aB(self.peds.state)
         return np.sum(F_aB, axis=1) * self.factor
@@ -159,7 +155,7 @@ class GroupRepulsiveForce(Force):
     """Group repulsive force"""
 
     def _get_force(self):
-        threshold = self.config("threshold", 0.5)
+        threshold = self.config["threshold"]
         forces = np.zeros((self.peds.size(), 2))
         if self.peds.has_group():
             for group in self.peds.groups:
@@ -268,8 +264,8 @@ class DesiredForce(Force):
     """
 
     def _get_force(self):
-        relexation_time = self.config("relaxation_time", 0.5)
-        goal_threshold = self.config("goal_threshold", 0.5)
+        relexation_time = self.config["relaxation_time"]
+        goal_threshold = self.config["goal_threshold"]
         pos = self.peds.pos()
         vel = self.peds.vel()
         goal = self.peds.goal()
@@ -299,11 +295,10 @@ class SocialForce(Force):
     """
 
     def _get_force(self):
-        lambda_importance = self.config("lambda_importance", 2.0)
-        gamma = self.config("gamma", 0.35)
-        gamma = 0.35
-        n = self.config("n", 2)
-        n_prime = self.config("n_prime", 3)
+        lambda_importance = self.config["lambda_importance"]
+        gamma = self.config["gamma"]
+        n = self.config["n"]
+        n_prime = self.config["n_prime"]
 
         pos_diff = stateutils.each_diff(self.peds.pos())  # n*(n-1)x2 other - self
         diff_direction, diff_length = stateutils.normalize(pos_diff)
@@ -345,8 +340,8 @@ class ObstacleForce(Force):
     """
 
     def _get_force(self):
-        sigma = self.config("sigma", 0.2)
-        threshold = self.config("threshold", 0.2) + self.peds.agent_radius
+        sigma = self.config["sigma"]
+        threshold = self.config["threshold"] + self.peds.agent_radius
         force = np.zeros((self.peds.size(), 2))
         if len(self.scene.get_obstacles()) == 0:
             return force
@@ -375,18 +370,22 @@ class Myforce(Force):
         # desired_direction = self.peds.desired_directions()
         distance_mat = CustomUtils.get_distance_matrix(self.peds)        
         # desired_social_distance = self.peds.state[:, -1:]
-        desired_social_distance = self.peds.state[:, Index.distancing.index]        
+        # desired_social_distance = self.peds.state[:, Index.distancing.index]        
+        desired_social_distance = self.config["desired_distance"]        
+        alpha, beta, lamb = self.config["alpha"], self.config["beta"], self.config["lambda"]
         in_desired_distance = distance_mat < desired_social_distance
         np.fill_diagonal(in_desired_distance, False)
         in_desired_distance = in_desired_distance.astype(int)
-
+        
         angle_matrix = CustomUtils.get_angle_matrix(self.peds)        
-        term_1 = 0.5 * (distance_mat - desired_social_distance)
+        term_1 = 0.5 * (distance_mat - desired_social_distance)        
         term_2 = 0.5 + (1-0.5)*(1 + angle_matrix)/2 
-        term = term_1 * term_2 * in_desired_distance        
+        term_1 = np.exp((distance_mat - desired_social_distance) / beta)
+        term_2 = lamb + (1-lamb)*(1 + angle_matrix)/2 
+        term = alpha * term_1 * term_2 * in_desired_distance        
         term = np.repeat(np.expand_dims(term, axis=2), 2, axis=2)
-        e_ij = CustomUtils.ped_directions(self.peds)          
-        return np.sum(e_ij * term, axis=1)
+        e_ij = CustomUtils.ped_directions(self.peds)        
+        return -np.sum(e_ij * term, axis=1)
 
     def _name(self):
         return "my_force"

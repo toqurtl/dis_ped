@@ -26,31 +26,20 @@ ped_force_dict={
 
 class Simulator(object):
 
-    def __init__(self, exp: Experiment, groups=None, config_file=None, force_idx=0, setting=None):
-        # Config 읽어보는 부분 -> 제일 마지막에 대대적으로 수정 ㄱ
-        self.config = DefaultConfig()
-        self.setting = setting
-        # if config_file:
-        #     self.config.load_config(config_file)        
-        # # self.scene_config = self.config.sub_config("scene")
+    def __init__(self, exp: Experiment, groups=None, config_file=None, force_idx=0):
+        # Config 읽어보는 부분        
         self.scene_config = exp.scene_config
         self.force_config = exp.force_config
         # 시뮬레이션 전체를 관장하는 것
         self.peds_info = exp.peds     
-        self.time_step = 0
-        
-        # PedState. 다음 스텝을 계산해주는 계산기
-        # self.peds = PedState(self.config)
-        self.peds = PedState(self.scene_config)
-        # self.env = EnvState(exp.obstacle, self.config("resolution", 10.0))
+        self.time_step = 0        
+        # PedState. 다음 스텝을 계산해주는 계산기        
+        self.peds = PedState(self.scene_config)        
         self.env = EnvState(exp.obstacle, self.scene_config["resolution"])
         self.force_idx = force_idx
-
+        # 시뮬레이션 time 관리
         self.time_table = exp.video.time_table
         self.step_width_list = []
-
-        self.experiment_force_list = []
-
         self._initialize_force()
         self._initialize()
         return
@@ -60,7 +49,7 @@ class Simulator(object):
         self.initial_speeds = np.array([np.linalg.norm(s) for s in speed_vecs])        
         self.max_speeds = self.peds.max_speed_multiplier * self.initial_speeds
 
-    def _initialize_force(self):        
+    def _initialize_force(self):   
         force_list = [
             forces.DesiredForce(),        
             forces.ObstacleForce(),
@@ -72,7 +61,7 @@ class Simulator(object):
             force_list += group_forces
 
         for force in force_list:
-            force.init(self, self.config, self.force_config["parameters"])        
+            force.init(self, self.force_config["parameters"])        
         self.forces = force_list
         return
 
