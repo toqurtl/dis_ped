@@ -1,7 +1,7 @@
 {
     "path":{
         "vid_folder_path": "D:\\OneDrive\\연구\\pandemic\\data\\ped_texas\\processing\\opossite",
-        "result_folder_path": "D:\\inseok\\workspace\\pandemic_vid\\result\\old"
+        "result_folder_path": "D:\\inseok\\workspace\\pandemic_vid\\result\\0208"
     },
     "obstacles":[
         [4, 4, -5, 14],

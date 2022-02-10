@@ -11,6 +11,14 @@ np.set_printoptions(formatter={'float_kind': lambda x: "{0:0.3f}".format(x)})
 idx = sys.argv[1]
 force_idx = int(sys.argv[2])
 file_path = sys.argv[3]
+if len(sys.argv) == 5:
+    is_animated = sys.argv[4]
+    if is_animated == "true":
+        is_animated = True
+    else:
+        is_animated = False
+else:
+    is_animated = False
 
 file_finder = FileFinder(file_path)
 
@@ -33,12 +41,12 @@ try:
         print("simul_time_threshold!")
     else:
         file_finder.summary_to_json(idx, force_idx, True)
+        if is_animated:
+            with SceneVisualizer(s.peds, s, exp.animation_path) as sv:
+                sv.animate()        
+            with SceneVisualizer(s.peds, s, exp.plot_path) as sv:
+                sv.plot()
 
-        # with SceneVisualizer(s.peds, s, exp.animation_path) as sv:
-        #     sv.animate()        
-
-        # with SceneVisualizer(s.peds, s, exp.plot_path) as sv:
-        #     sv.plot()
 except Exception as e:
     file_finder.summary_to_json(idx, force_idx, False)
     print("error during simulation")

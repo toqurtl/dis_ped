@@ -30,8 +30,16 @@ class ResultData(object):
     @property
     def num_person(self):
         return len(self.origin_states[0])
+
+    @property
+    def simulation_time(self):
+        return len(self.origin_states)
+
+    @property
+    def gt_time(self):
+        return len(self.gt_states)
         
-    def ade_range(self, person_idx):        
+    def ade_range(self, person_idx):
         origin_person_data = self.origin_states[:, person_idx]
         gt_person_data = self.gt_states[:, person_idx]
         start = origin_person_data[0][Index.start_time.index]
@@ -48,7 +56,6 @@ class ResultData(object):
                 gt_finish = idx-1
                 break
         finish = min(origin_finish, gt_finish)
-
         return int(start), int(finish)
 
     def ade_of_person(self, person_idx):
@@ -113,7 +120,10 @@ class ResultData(object):
         ctn = 0
         check_data = []
         for time in range(start, finish+1):
-            data = self.origin_states[time]            
+            try:
+                data = self.origin_states[time]         
+            except IndexError as e:
+                continue
             for idx, person_data in enumerate(data):
                 is_visible = person_data[Index.visible.index] == 1
                 if idx is not person_idx and is_visible:
@@ -128,6 +138,32 @@ class ResultData(object):
         avg = 0
         for person_idx in range(0, self.num_person):        
             ctn, total_time, check_data = self.risk_index_of_person(person_idx, distance)
+            avg += ctn / total_time
+        return avg / self.num_person
+
+    def risk_index_of_video_person(self, person_idx, distance):
+        start, finish = self.ade_range(person_idx)
+        ctn = 0
+        check_data = []
+        for time in range(start, finish+1):
+            try:
+                data = self.gt_states[time]         
+            except IndexError as e:
+                continue
+            for idx, person_data in enumerate(data):
+                is_visible = person_data[Index.visible.index] == 1
+                if idx is not person_idx and is_visible:
+                    dis = get_distance(data, person_idx, idx)
+                    if dis < distance:
+                        ctn += 1
+                        check_data.append(time)
+        return ctn, finish-start+1, check_data
+    
+    def risk_index_of_video_scene(self, distance):
+        result_data = {}
+        avg = 0
+        for person_idx in range(0, self.num_person):        
+            ctn, total_time, check_data = self.risk_index_of_video_person(person_idx, distance)
             avg += ctn / total_time
         return avg / self.num_person
 
@@ -166,7 +202,8 @@ class ResultData(object):
         data["result"] = {}
         data["basic"]["vid_id"] = vid_id
         data["basic"]["num_person"] = self.num_person
-        data["basic"]["gt_time"] = len(self.gt_data)        
+        data["basic"]["gt_time"] = len(self.gt_data)  
+        data["basic"]["social"] = self.risk_index_of_video_scene(2)            
         data["result"]["force_id"] = int(force_id)
         data["result"]["simulation_time"] = len(self.origin_data)
         data["result"]["ade"] = self.ade_of_scene()
@@ -185,4 +222,18 @@ class ResultData(object):
             json.dump(state, f, indent=4)
         return
         
-
+    def minmax(self, person_idx):
+        px_origin_min = np.min(self.origin_states[:, person_idx, Index.px.index])
+        py_origin_min = np.min(self.origin_states[:, person_idx, Index.py.index])
+        px_gt_min = np.min(self.gt_states[:, person_idx, Index.px.index])
+        py_gt_min = np.min(self.gt_states[:, person_idx, Index.py.index])
+        px_origin_max = np.max(self.origin_states[:, person_idx, Index.px.index])
+        py_origin_max = np.max(self.origin_states[:, person_idx, Index.py.index])
+        px_gt_max = np.max(self.gt_states[:, person_idx, Index.px.index])
+        py_gt_max = np.max(self.gt_states[:, person_idx, Index.py.index])
+        px_min = min(px_origin_min, px_gt_min)
+        py_min = min(py_origin_min, py_gt_min)
+        px_max = min(px_origin_max, px_gt_max)
+        py_max = min(py_origin_max, py_gt_max)
+        return (px_min, py_min, px_max, py_max)
+        

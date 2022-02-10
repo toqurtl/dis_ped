@@ -119,7 +119,7 @@ class FileFinder(object):
                 return False
         return True
 
-    def is_success(self, idx):
+    def is_success(self, idx):        
         if not os.path.exists(self.compare_path(idx)):
             return False
         with open(self.compare_path(idx), "r", encoding="UTF-8") as f:

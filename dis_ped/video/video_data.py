@@ -124,7 +124,6 @@ class VideoData(object):
     def speed_at(self, pos_data):
         print(np.average(pos_data[0:10]))
 
-
     def to_json(self, file_path):        
         state = self.initial_state()
         data = {

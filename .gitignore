@@ -1,7 +1,9 @@
 # file
 *.kva
 playground.py
+testground.py
 *.json
+*.png
 setting_folder/
 
 # Byte-compiled / optimized / DLL files
