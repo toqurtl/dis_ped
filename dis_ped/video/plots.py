@@ -1,4 +1,4 @@
-from dis_ped.app.filefinder import FileFinder
+from dis_ped.config.filefinder import FileFinder
 from dis_ped.video.result_data import ResultData
 from typing import List
 from dis_ped.video.parameters import DataIndex as Index
@@ -13,11 +13,11 @@ plt.rcParams["animation.html"] = "jshtml"
 
 
 class PlotGenerator(object):
-    def __init__(self, file_path, idx, force_idx):
+    def __init__(self, file_path, idx):
         self.finder = FileFinder(file_path)
-        trajectory_path = self.finder.simul_result_path(idx, force_idx)
+        trajectory_path = self.finder.simul_result_path(idx)
         gt_path = self.finder.gt_path(idx)
-        self.save_path = self.finder.force_path(idx, force_idx)
+        self.save_path = self.finder.env_path(idx)
         self.result_data = ResultData(trajectory_path, gt_path)
         self.line_legend = []
         with open(file_path, 'r', encoding="UTF-8") as f:

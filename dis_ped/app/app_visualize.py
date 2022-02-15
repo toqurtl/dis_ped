@@ -10,16 +10,17 @@ from dis_ped.video.plots import PlotGenerator
 
 
 idx = sys.argv[1]
-file_path = sys.argv[2]
+force_idx = sys.argv[2]
+file_path = sys.argv[3]
 
     
 file_finder = FileFinder(file_path)
-trajectory_path = file_finder.simul_result_path(idx)
+trajectory_path = file_finder.simul_result_path(idx, force_idx)
 gt_path = file_finder.gt_path(idx)
-valid_path = file_finder.valid_path(idx)
+valid_path = file_finder.valid_path(idx, force_idx)
 result_data = ResultData(trajectory_path, gt_path)
-valid_path = file_finder.valid_path(idx)
-pg = PlotGenerator(file_path, idx)
+valid_path = file_finder.valid_path(idx, force_idx)
+pg = PlotGenerator(file_path, idx, force_idx)
 pg.save_figs()
 
 

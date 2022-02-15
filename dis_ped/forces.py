@@ -381,7 +381,7 @@ class Myforce(Force):
         term_1 = 0.5 * (distance_mat - desired_social_distance)        
         term_2 = 0.5 + (1-0.5)*(1 + angle_matrix)/2 
         term_1 = np.exp((distance_mat - desired_social_distance) / beta)
-        term_2 = lamb + (1-lamb)*(1 + angle_matrix)/2        
+        term_2 = lamb + (1-lamb)*(1 + angle_matrix)/2
         term = alpha * term_1 * term_2 * in_desired_distance        
         term = np.repeat(np.expand_dims(term, axis=2), 2, axis=2)
         e_ij = CustomUtils.ped_directions(self.peds)                
@@ -398,11 +398,56 @@ class MyforceSecond(Force):
         alpha, beta, lamb = self.config["alpha"], self.config["beta"], self.config["lambda"]
         small_alpha = self.config["small_alpha"]
         distance_mat = CustomUtils.get_distance_matrix(self.peds) 
+        angle_matrix = CustomUtils.get_angle_matrix(self.peds)
+        angle_term = 0.5 + (1-0.5)*(1 + angle_matrix)/2                        
+        if len(distance_mat) > 1:            
+            desired_social_distance = self.config["desired_distance"]        
+            Dij = desired_social_distance * 1         
+            sort_idx = np.argsort(np.argsort(distance_mat))
+            dijmin = distance_mat[sort_idx == 1]
+            angmin = angle_term[sort_idx == 1]
+            force_type_1 = np.expand_dims((Dij>dijmin)*1, axis=1)
+            force_type_2 = np.expand_dims((Dij<=dijmin)*1, axis=1)
+
+            term_1 = np.expand_dims(small_alpha * (Dij - dijmin)/Dij * angmin, axis=1) 
+            vec_diff = CustomUtils.ped_directions(self.peds)           
+            
+            nij = vec_diff[sort_idx==1]
+
+            term_1_force = term_1 * nij            
+            term_2 = alpha*np.exp((0.5-distance_mat)/beta) * angle_term
+            np.fill_diagonal(term_2, 0)            
+            not_contain = np.expand_dims(term_2[sort_idx==1], axis=1) * nij            
+            term_2 = np.expand_dims(term_2, axis=2) 
+            term_3_force = np.sum(term_2 * vec_diff, axis=1)            
+            term_2_force = term_3_force - not_contain
+                
+            force_type_1_value = term_1_force + term_2_force            
+            force = force_type_1 * force_type_1_value + force_type_2 * term_3_force
+            normalized, norm_factors = stateutils.normalize(force)
+            # 너무 큰거 threshold                     
+            force[norm_factors>10] = 5 * normalized[norm_factors >10]            
+            
+            return -force
+        else:
+            return np.array([[0,0]])
+
+    def _name(self):
+        return "my_force_2"
+        
+
+class MyforceThird(Force):
+    def _get_force(self):
+        # force_1
+        
+        alpha, beta, lamb = self.config["alpha"], self.config["beta"], self.config["lambda"]
+        small_alpha = self.config["small_alpha"]
+        distance_mat = CustomUtils.get_distance_matrix(self.peds) 
         angle_matrix = CustomUtils.get_angle_matrix(self.peds)                  
         angle_term = term_2 = lamb + (1-lamb)*(1 + angle_matrix)/2
         if len(distance_mat) > 1:            
             desired_social_distance = self.config["desired_distance"]        
-            Dij = desired_social_distance * 2         
+            Dij = desired_social_distance * 1         
             sort_idx = np.argsort(np.argsort(distance_mat))
             dijmin = distance_mat[sort_idx == 1]
             force_type_1 = np.expand_dims((Dij>dijmin)*1, axis=1)
@@ -427,12 +472,9 @@ class MyforceSecond(Force):
             # 너무 큰거 threshold                     
             force[norm_factors>10] = 5 * normalized[norm_factors >10]            
             
-            return force
+            return -force
         else:
             return np.array([[0,0]])
 
-        
-
     def _name(self):
         return "my_force_2"
-        

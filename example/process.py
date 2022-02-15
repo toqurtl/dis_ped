@@ -1,5 +1,5 @@
 import os
-from dis_ped.app.filefinder import FileFinder
+from dis_ped.config.filefinder import FileFinder
 
 finder = FileFinder("setting.json")
 

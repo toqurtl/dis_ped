@@ -5,7 +5,9 @@ import json
 
 
 idx = sys.argv[1]
-file_path = sys.argv[2]    
+file_path = sys.argv[2]
+
+    
 file_finder = FileFinder(file_path)
 trajectory_path = file_finder.simul_result_path(idx)
 gt_path = file_finder.gt_path(idx)

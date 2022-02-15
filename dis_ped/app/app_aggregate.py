@@ -9,7 +9,7 @@ finder = FileFinder(file_path)
 first_row = []
 
 first_row += ["vid_idx", "video_time", "num_person", "social"]
-first_row += ["success", "simul_time_error", "ade", "dtw", "social", "sdcr_error"]
+first_row += ["success", "simul_time_error", "ade", "dtw", "social"]
 
 f = open(finder.result_csv_path, "w", newline='')
 wr = csv.writer(f)
@@ -30,7 +30,7 @@ for vid_idx, result in data["result"].items():
         row.append(data)
   
     wr.writerow(row)
-
+    
 f.close()
 
 

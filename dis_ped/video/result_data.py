@@ -196,16 +196,18 @@ class ResultData(object):
             dtw_sum += self.dtw_of_person(person_idx)
         return dtw_sum / self.num_person
 
-    def result(self, vid_id, force_id):
+    def result(self, vid_id, force_name, success):
         data = {}
         data["basic"] = {}
         data["result"] = {}
         data["basic"]["vid_id"] = vid_id
         data["basic"]["num_person"] = self.num_person
         data["basic"]["gt_time"] = len(self.gt_data)  
-        data["basic"]["social"] = self.risk_index_of_video_scene(2)            
-        data["result"]["force_id"] = int(force_id)
-        data["result"]["simulation_time"] = len(self.origin_data)
+        data["basic"]["social"] = self.risk_index_of_video_scene(2) 
+        data["result"]["force_name"] = force_name
+        data["result"]["success"] = success
+        data["result"]["simulation_time"] = self.simulation_time_error()
+        data["result"]["sdcr_error"] = self.sdcr_error(2)
         data["result"]["ade"] = self.ade_of_scene()
         data["result"]["fde"] = 0
         data["result"]["dtw"] = self.dtw_of_scene()
@@ -213,14 +215,23 @@ class ResultData(object):
 
         data["result"]["social"] = self.risk_index_of_scene(2)
         return data
-
-            
                     
-    def to_json(self, file_path, vid_id, force_id):
-        state = self.result(vid_id, force_id)
+    def to_json(self, file_path, vid_id, force_name, success):
+        state = self.result(vid_id, force_name, success)
         with open(file_path, 'w') as f:
             json.dump(state, f, indent=4)
         return
+
+    def simulation_time_error(self):
+        return (len(self.origin_data) - len(self.gt_data)) / len(self.gt_data)
+
+    def sdcr_error(self, distance):
+        sdcr_gt = self.risk_index_of_video_scene(distance)
+        sdcr_simul = self.risk_index_of_scene(distance)
+        if sdcr_gt == 0:
+            return 0
+        else:
+            return (sdcr_simul-sdcr_gt)/sdcr_gt
         
     def minmax(self, person_idx):
         px_origin_min = np.min(self.origin_states[:, person_idx, Index.px.index])

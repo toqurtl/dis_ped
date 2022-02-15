@@ -34,7 +34,6 @@ compare_data["simul_result"]["simul_time"] = {}
 compare_data["simul_result"]["ade"] = {}
 compare_data["simul_result"]["dtw"] = {}
 compare_data["simul_result"]["social"] = {}
-compare_data["simul_result"]["sdcr_error"] = {}
 
 for idx in idx_list:
     with open(finder.valid_path(idx), 'r') as f:
@@ -45,7 +44,6 @@ for idx in idx_list:
     compare_data["simul_result"]["ade"][idx] = data["result"]["ade"]
     compare_data["simul_result"]["dtw"][idx] = data["result"]["dtw"]
     compare_data["simul_result"]["social"][idx] = data["result"]["social"]
-    compare_data["simul_result"]["sdcr_error"][idx] = data["result"]["sdcr_error"]
 
 # type2
 compare_data_idx = {}
@@ -70,7 +68,6 @@ for idx in idx_list:
     compare_data_idx["result"][idx]["simul_result"]["ade"] = data["result"]["ade"]
     compare_data_idx["result"][idx]["simul_result"]["dtw"] = data["result"]["dtw"]
     compare_data_idx["result"][idx]["simul_result"]["social"] = data["result"]["social"]
-    compare_data_idx["result"][idx]["simul_result"]["sdcr_error"] = data["result"]["sdcr_error"]
 
 
 with open(finder.compare_path(), 'w') as f:

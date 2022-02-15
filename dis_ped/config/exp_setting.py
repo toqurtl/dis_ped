@@ -1,18 +1,17 @@
 import json
-from msilib.schema import File
 import os
 from dis_ped.video.video_data import VideoData
 from dis_ped.video.peds import Pedestrians
-from dis_ped.app.filefinder import FileFinder
+from dis_ped.config.filefinder import FileFinder
+from dis_ped.config.config import PedConfig
 
-class Experiment(object):
-    def __init__(self, config_path):
-        with open(config_path, 'r', encoding="UTF-8") as f:
-            self.cfg = json.load(f)
-        
+class ExperimentSetting(object):
+    def __init__(self, config_path, idx):
+        self.cfg = PedConfig(config_path)        
         self.file_finder = FileFinder(config_path)
-        self.idx = 0
-        self.force_idx = 0
+        self.idx = idx
+        self._set_experiment()
+        self._save_vid_data()
 
     @property
     def video(self) -> VideoData:
@@ -28,14 +27,14 @@ class Experiment(object):
         
     @property
     def peds(self):
-        basic_path = self.file_finder.basic_path(self.idx)
-        with open(basic_path, 'r') as f:
+        video_info_path = self.file_finder.video_info_path(self.idx)
+        with open(video_info_path, 'r') as f:
             json_data = json.load(f)
         return Pedestrians(json_data)
 
     @property
     def obstacle(self):
-        return self.cfg["obstacles"]
+        return self.cfg.obstacles
 
     @property
     def simul_result_path(self):
@@ -51,33 +50,34 @@ class Experiment(object):
 
     @property
     def force_config(self):
-        return self.cfg["forces"]
+        return self.cfg.force_config
 
     @property
     def scene_config(self):
-        return self.cfg["scene"]
+        return self.cfg.scene_config
 
     @property
     def simul_config(self):
-        return self.cfg["condition"]
-
-    def set_experiment(self, idx, force_idx):
-        self.idx = idx
-        self.force_idx = force_idx
-        self.set_folder_path()
+        return self.cfg.simul_config
     
-    def save_vid_data(self):
-        basic_path = self.file_finder.basic_path(self.idx)
-        gt_path = self.file_finder.gt_path(self.idx)
-        self.video.to_json(basic_path)        
-        self.video.trajectory_to_json(gt_path)
-        return
+    def force_list(self):
+        return self.force_config["set"].keys()
 
-    def set_folder_path(self):
-        env_path = self.file_finder.env_path(self.idx)
-        force_path= self.file_finder.force_path(self.idx, self.force_idx)
+    def _set_experiment(self):
+        # set folder
+        result_path = self.file_finder.result_path
+        env_path = self.file_finder.env_path(self.idx) 
+        if not os.path.exists(result_path):
+            os.mkdir(result_path)
+
         if not os.path.exists(env_path):
             os.mkdir(env_path)
 
-        if not os.path.exists(force_path):
-            os.mkdir(force_path)      
+    def _save_vid_data(self):
+        video_info_path = self.file_finder.video_info_path(self.idx)
+        gt_path = self.file_finder.gt_path(self.idx)
+        self.video.to_json(video_info_path)        
+        self.video.trajectory_to_json(gt_path)
+        return
+
+

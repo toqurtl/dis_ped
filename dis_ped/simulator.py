@@ -5,7 +5,7 @@ from dis_ped.pedstate import PedState
 from dis_ped import forces
 from dis_ped.video.peds import Pedestrians
 from dis_ped.update_manager import UpdateManager
-from dis_ped.app.func import Experiment
+from dis_ped.config.exp_setting import ExperimentSetting
 import numpy as np
 import json
 
@@ -28,7 +28,7 @@ ped_force_dict={
 
 class Simulator(object):
 
-    def __init__(self, exp: Experiment, groups=None, config_file=None, force_idx=0):
+    def __init__(self, exp: ExperimentSetting, groups=None):
         # Config 읽어보는 부분        
         self.scene_config = exp.scene_config
         self.force_config = exp.force_config
@@ -37,8 +37,7 @@ class Simulator(object):
         self.time_step = 0        
         # PedState. 다음 스텝을 계산해주는 계산기        
         self.peds = PedState(self.scene_config)        
-        self.env = EnvState(exp.obstacle, self.scene_config["resolution"])
-        self.force_idx = force_idx
+        self.env = EnvState(exp.obstacle, self.scene_config["resolution"])        
         # 시뮬레이션 time 관리
         self.time_table = exp.video.time_table
         self.step_width_list = []
@@ -51,19 +50,17 @@ class Simulator(object):
         self.initial_speeds = np.array([np.linalg.norm(s) for s in speed_vecs])        
         self.max_speeds = self.peds.max_speed_multiplier * self.initial_speeds
 
-    def _initialize_force(self):   
-        force_list = [
-            forces.DesiredForce(),        
-            forces.ObstacleForce(),
-        ]
-        force_list.append(ped_force_dict[self.force_idx])
-
+    def _initialize_force(self):
+        force_list = []
+        for force_name in self.force_config["set"].keys():
+            force_list.append(force_dict[force_name])
+        
         group_forces = []
         if self.scene_config["enable_group"]:
             force_list += group_forces
 
         for force in force_list:
-            force.init(self, self.force_config["parameters"])        
+            force.init(self, self.force_config["set"])        
         self.forces = force_list
         return
 

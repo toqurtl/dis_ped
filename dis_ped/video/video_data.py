@@ -181,4 +181,3 @@ class VideoData(object):
         with open(file_path, 'w') as f:
             json.dump(result_data, f, indent=4)
         return
-    
