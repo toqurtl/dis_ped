@@ -6,12 +6,13 @@ import csv
 file_path = sys.argv[1]
 
 finder = FileFinder(file_path)
+name = finder.cfg.setting_id
 first_row = []
 
 first_row += ["vid_idx", "video_time", "num_person", "social"]
 first_row += ["success", "simul_time_error", "ade", "dtw", "social"]
 
-f = open(finder.result_csv_path, "w", newline='')
+f = open(finder.result_csv_path(name), "w", newline='')
 wr = csv.writer(f)
 wr.writerow(first_row)
 

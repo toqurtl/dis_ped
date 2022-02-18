@@ -15,16 +15,10 @@ force_dict={
     "ped_repulsive_force": forces.PedRepulsiveForce(),
     "social_force": forces.SocialForce(),
     "my_force": forces.Myforce(),
-    "my_force_2": forces.MyforceSecond()
+    "my_force_2": forces.MyforceSecond(),
+    "my_force_3": forces.MyforceThird()
 }
 
-
-ped_force_dict={
-    0: forces.Myforce(),
-    1: forces.PedRepulsiveForce(),
-    2: forces.SocialForce(),
-    3: forces.MyforceSecond()
-}
 
 class Simulator(object):
 
