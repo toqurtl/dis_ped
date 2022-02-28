@@ -157,6 +157,7 @@ class ResultData(object):
                     if dis < distance:
                         ctn += 1
                         check_data.append(time)
+                        break
         return ctn, finish-start+1, check_data
     
     def risk_index_of_video_scene(self, distance):
