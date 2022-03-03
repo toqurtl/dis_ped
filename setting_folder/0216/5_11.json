@@ -1,0 +1,54 @@
+{
+    "setting_id": "5_11",
+    "repulsive_force": "my_force_3",
+    "path":{
+        "vid_folder_path": "D:\\OneDrive\\연구\\pandemic\\data\\ped_texas\\new_opposite",
+        "result_folder_path": "D:\\inseok\\workspace\\pandemic_vid\\result\\0216"
+    },
+    "obstacles":[
+        [5.15, 5.15, -8, 16],
+        [-1.44, -1.44, -10, -1.2], 
+        [-1.44, -1.44, 0, 6], 
+        [-1.44, -1.44, 7.2, 16],
+        [-1.44, 0, 7.2, 7.2],
+        [0, 0, 7.2, 8.2],
+        [-1.44, 0, 8.2, 8.2],
+        [-1.44, 0, 0, 0],
+        [0, 0, 0, 1],
+        [-1.44, 0, 1, 1]
+    ],
+    "scene":{
+        "enable_group": true,
+        "agent_radius": 0.35,
+        "step_width": 0.133,
+        "max_speed_multiplier": 1.1,
+        "tau": 0.5,
+        "resolution": 10
+    },
+    "forces":{
+        "force_save": true,
+        "set":{
+            "desired_force":{
+                "factor": 1.0,
+                "relaxation_time": 0.5,
+                "goal_threshold": 0.2
+            },
+            "obstacle_force":{
+                "factor": 10.0,
+                "sigma": 0.2,
+                "threshold": 0.2
+            },
+            "my_force_3":{
+                "factor": 1,
+                "desired_distance": 2,
+                "alpha": 1000,
+                "beta": 0.11,
+                "lambda": 0.5
+            }
+        }        
+    },
+    "condition":{
+        "simul_time_threshold": 1000
+    }
+
+}

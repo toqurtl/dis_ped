@@ -2,8 +2,8 @@
 *.kva
 playground.py
 testground.py
-*.json
 *.png
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -129,8 +129,8 @@ venv.bak/
 
 # mypy
 .mypy_cache/
-.dmypy.json
-dmypy.json
+# .dmypy.json
+# dmypy.json
 
 # Pyre type checker
 .pyre/
