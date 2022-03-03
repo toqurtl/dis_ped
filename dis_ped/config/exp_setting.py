@@ -19,10 +19,10 @@ class ExperimentSetting(object):
             hp_path = self.file_finder.hp_path(self.idx)
             vp_path = self.file_finder.vp_path(self.idx)        
             v = VideoData(hp_path, vp_path, self.idx)
-        except FileNotFoundError:
+        except FileNotFoundError:            
             hp_path = self.file_finder.hp_path_2(self.idx)
             vp_path = self.file_finder.vp_path_2(self.idx)        
-            v = VideoData(hp_path, vp_path, self.idx)            
+            v = VideoData(hp_path, vp_path, self.idx)                         
         return v
         
     @property

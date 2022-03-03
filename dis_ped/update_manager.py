@@ -73,3 +73,7 @@ class UpdateManager(object):
     def get_visible_idx(cls, state: np.ndarray):
         visible_peds = cls.get_visible(state)
         return visible_peds[:, Index.id.index].astype(np.int64)
+
+    @classmethod
+    def update_target(cls, state:np.ndarray):
+        pass

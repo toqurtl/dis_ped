@@ -21,12 +21,8 @@ else:
 
 file_finder = FileFinder(config_path)
 exp = ExperimentSetting(config_path, idx)
-
 try:       
-    s = Simulator(
-        exp        
-    )
-
+    s = Simulator(exp)
     s.simulate()
     s.result_to_json(file_finder.simul_result_path(idx))
     if s.time_step > file_finder.simul_time_threshold:
@@ -43,8 +39,7 @@ try:
 except Exception as e:
     file_finder.summary_to_json(idx, False)
     print("error during simulation")
-    print(e)
-    e.with_traceback()
+    print(e)    
     
 
 

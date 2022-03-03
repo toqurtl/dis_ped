@@ -11,7 +11,6 @@ from dis_ped.video.plots import PlotGenerator
 
 idx = sys.argv[1]
 file_path = sys.argv[2]
-
     
 file_finder = FileFinder(file_path)
 trajectory_path = file_finder.simul_result_path(idx)

@@ -7,13 +7,14 @@ class Pedestrians(object):
     def __init__(self, json_data):
         self.peds: Dict[int, PedAgent] = {}
         self.states: List[np.ndarray] = []
-        self.group_states = []            
+        self.group_states = []
         self._initialize(json_data)
     
     def _initialize(self, json_data):
         initial_state = []        
         for key, agent_data in json_data["initial_state"].items():
-            ped = PedAgent(agent_data)
+            ped_info = json_data["ped_info"][key]
+            ped = PedAgent(agent_data, ped_info)
             self.peds[key] = ped
             initial_state.append(ped.current_state)
         

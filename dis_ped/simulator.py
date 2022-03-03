@@ -21,7 +21,7 @@ force_dict={
 
 
 class Simulator(object):
-
+    """초기값 설정"""
     def __init__(self, exp: ExperimentSetting, groups=None):
         # Config 읽어보는 부분        
         self.scene_config = exp.scene_config
@@ -39,11 +39,13 @@ class Simulator(object):
         self._initialize()
         return
 
+    # 초기 속도를 설정
     def _initialize(self):
         speed_vecs = self.peds_info.current_state[:,2:4]                
         self.initial_speeds = np.array([np.linalg.norm(s) for s in speed_vecs])        
         self.max_speeds = self.peds.max_speed_multiplier * self.initial_speeds
 
+    # 힘 설정
     def _initialize_force(self):
         force_list = []
         for force_name in self.force_config["set"].keys():
@@ -57,6 +59,79 @@ class Simulator(object):
             force.init(self, self.force_config["set"])        
         self.forces = force_list
         return
+
+    def get_obstacles(self):
+        return self.env.obstacles
+
+    """시뮬레이션 함수"""
+    def simulate(self):
+        while True:            
+            is_finished = self.step_once()            
+            if is_finished: 
+                break
+
+            if self.time_step>1000:
+                break
+        return
+
+    def step_once(self):
+        # update_visible
+        # states중 마지막 것 가져옴       
+        whole_state = self.peds_info.current_state.copy()
+        # finish 여부를 확인
+        whole_state = UpdateManager.update_finished(whole_state)
+        # goal schedule을 확인해서 update
+
+        # finish 여부에 따라 visible한 agent들의 state 가져옴
+        visible_state = UpdateManager.get_visible(whole_state)
+        # finish 여부에 따라 visible한 agent를의 idx를 가져옴
+        visible_idx = UpdateManager.get_visible_idx(whole_state)
+        visible_max_speeds = self.max_speeds[visible_idx]
+        # 모든 agent가 끝나면 종료
+        if self.check_finish():
+            return True
+        # step_width update
+        self.set_step_width()
+
+        # group 행동할 때 설정
+        next_group_state = None
+        # 힘 계산 수행해서 다음 state를 얻어냄
+        if len(visible_state) > 0:
+            # 계산 대상이 되는 애들에 대해 계산
+            next_state, next_group_state = self.do_step(visible_state, visible_max_speeds, None)                         
+            # 전체 스테이트로 함침
+            whole_state = UpdateManager.new_state(whole_state, next_state)
+            
+        # 계산안하고 등장해야 하는 애들 반영(새로 등장할 agent들을 계산 끝내고)
+        whole_state = UpdateManager.update_new_peds(whole_state, self.time_step)                        
+        
+        # 결과 저장
+        is_updated = self.after_step(whole_state, next_group_state)
+        if is_updated:            
+            self.peds.time_step += 1
+            self.time_step += 1
+            return False
+        else:
+            print("update failed")
+            return True
+
+    # 힘을 계산하고, 힘에 의한 위치 변화 및 속도 변화를 다음 state로 결과를 만듦
+    # visible state + force -> new_state
+    def do_step(self, visible_state, visible_max_speeds, visible_group=None):        
+        # 계산기 설정
+        self.peds.set_state(visible_state, visible_group, visible_max_speeds)        
+        force = self.compute_forces()        
+        next_state, next_group_state = self.peds.step(force, visible_state)                
+        return next_state, next_group_state
+
+    
+    def after_step(self, next_state, next_group_state):
+        # Pedestrian에 결과를 업데이트
+        is_updated = self.peds_info.update(next_state, next_group_state, self.time_step)        
+        return is_updated
+
+    def check_finish(self):        
+        return np.sum(self.peds_info.check_finished())
 
     def set_step_width(self):
         new_step_width = 0
@@ -74,66 +149,7 @@ class Simulator(object):
     def compute_forces(self):        
         return sum(map(lambda x: x.get_force(), self.forces))
 
-    def get_obstacles(self):
-        return self.env.obstacles
-
-    """시뮬레이션 함수"""
-    def simulate(self):
-        while True:            
-            is_finished = self.step_once()            
-            if is_finished: 
-                break
-
-            if self.time_step>1000:
-                break
-        return
-
-    def step_once(self):
-        # update_visible        
-        whole_state = self.peds_info.current_state.copy()
-        whole_state = UpdateManager.update_finished(whole_state)        
-        visible_state = UpdateManager.get_visible(whole_state)         
-        visible_idx = UpdateManager.get_visible_idx(whole_state)
-        visible_max_speeds = self.max_speeds[visible_idx]
-
-        if self.check_finish():
-            return True
-
-        self.set_step_width()
-        next_group_state = None
-        if len(visible_state) > 0:            
-            next_state, next_group_state = self.do_step(visible_state, visible_max_speeds, None)                         
-            whole_state = UpdateManager.new_state(whole_state, next_state)
-            
-        # 계산안하고 등장해야 하는 애들 반영
-        whole_state = UpdateManager.update_new_peds(whole_state, self.time_step)                        
-        
-        # 결과 저장
-        is_updated = self.after_step(whole_state, next_group_state)
-        if is_updated:            
-            self.peds.time_step += 1
-            self.time_step += 1
-            return False
-        else:
-            print("update failed")
-            return True
-
-    # calculate social force and make result
-    # visible state + force -> new_state
-    def do_step(self, visible_state, visible_max_speeds, visible_group=None):        
-        self.peds.set_state(visible_state, visible_group, visible_max_speeds)        
-        force = self.compute_forces()        
-        next_state, next_group_state = self.peds.step(force, visible_state)                
-        return next_state, next_group_state
-
-    # result to data
-    def after_step(self, next_state, next_group_state):
-        is_updated = self.peds_info.update(next_state, next_group_state, self.time_step)        
-        return is_updated
-
-    def check_finish(self):        
-        return np.sum(self.peds_info.check_finished())
-
+    """결과값 저장"""
     def result_to_json(self, file_path):
         result_data = {}        
         time = 0

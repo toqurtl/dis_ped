@@ -1,17 +1,19 @@
 import numpy as np
 from .parameters import DataIndex as Index
-from dis_ped.video import parameters
 
 index_list = sorted([index for index in Index], key=lambda data: data.index)
 
 
 # -1: id, -2: visible, -3: tau
 class PedAgent(object):
-    def __init__(self, base_data):
+    def __init__(self, base_data, ped_info):
         self.base_data = base_data
         self.id = base_data.get(Index.id.str_name)
         self.start_time = base_data.get(Index.start_time.str_name)
-        self.states = []        
+        self.states = []
+        self.phase = 0        
+        self.final_phase = ped_info["final_phase"]
+        self.goal_schedule = ped_info["goal_schedule"]
         self._initialize()
 
     @property
