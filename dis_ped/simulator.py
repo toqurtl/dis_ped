@@ -24,24 +24,30 @@ class Simulator(object):
     """초기값 설정"""
     def __init__(self, exp: ExperimentSetting, groups=None):
         # Config 읽어보는 부분        
+        
         self.scene_config = exp.scene_config
         self.force_config = exp.force_config
         # 시뮬레이션 전체를 관장하는 것
-        self.peds_info = exp.peds     
-        self.time_step = 0        
+        
+        self.pedestrians = exp.peds
+        
         # PedState. 다음 스텝을 계산해주는 계산기        
+        
         self.peds = PedState(self.scene_config)        
         self.env = EnvState(exp.obstacle, self.scene_config["resolution"])        
         # 시뮬레이션 time 관리
+        self.time_step = 0  
         self.time_table = exp.video.time_table
         self.step_width_list = []
+        
         self._initialize_force()
         self._initialize()
+        
         return
 
     # 초기 속도를 설정
     def _initialize(self):
-        speed_vecs = self.peds_info.current_state[:,2:4]                
+        speed_vecs = self.pedestrians.current_state[:,2:4]                
         self.initial_speeds = np.array([np.linalg.norm(s) for s in speed_vecs])        
         self.max_speeds = self.peds.max_speed_multiplier * self.initial_speeds
 
@@ -65,7 +71,8 @@ class Simulator(object):
 
     """시뮬레이션 함수"""
     def simulate(self):
-        while True:            
+        while True:
+            
             is_finished = self.step_once()            
             if is_finished: 
                 break
@@ -76,20 +83,24 @@ class Simulator(object):
 
     def step_once(self):
         # update_visible
-        # states중 마지막 것 가져옴       
-        whole_state = self.peds_info.current_state.copy()
-        # finish 여부를 확인
-        whole_state = UpdateManager.update_finished(whole_state)
+        # states중 마지막 것 가져옴
+        
+        whole_state = self.pedestrians.current_state.copy()
+        
+        # whole_state = UpdateManager.update_finished(whole_state)
+        
+        # 모든 agent가 끝나면 종료
+        # if self.check_finish():
+        if UpdateManager.is_finished(whole_state):
+            return True
         # goal schedule을 확인해서 update
-
+        
         # finish 여부에 따라 visible한 agent들의 state 가져옴
         visible_state = UpdateManager.get_visible(whole_state)
         # finish 여부에 따라 visible한 agent를의 idx를 가져옴
         visible_idx = UpdateManager.get_visible_idx(whole_state)
         visible_max_speeds = self.max_speeds[visible_idx]
-        # 모든 agent가 끝나면 종료
-        if self.check_finish():
-            return True
+        
         # step_width update
         self.set_step_width()
 
@@ -97,23 +108,27 @@ class Simulator(object):
         next_group_state = None
         # 힘 계산 수행해서 다음 state를 얻어냄
         if len(visible_state) > 0:
-            # 계산 대상이 되는 애들에 대해 계산
+            # visible state들에 대해서 힘 계산해서 변경
             next_state, next_group_state = self.do_step(visible_state, visible_max_speeds, None)                         
-            # 전체 스테이트로 함침
-            whole_state = UpdateManager.new_state(whole_state, next_state)
+            # 변경된 visbile state를 whole state에 반영
             
-        # 계산안하고 등장해야 하는 애들 반영(새로 등장할 agent들을 계산 끝내고)
+            whole_state = UpdateManager.new_state(whole_state, next_state)
+        
+        # 계산안하고 등장해야 하는 애들 반영 -> whole_state
         whole_state = UpdateManager.update_new_peds(whole_state, self.time_step)                        
         
-        # 결과 저장
-        is_updated = self.after_step(whole_state, next_group_state)
-        if is_updated:            
-            self.peds.time_step += 1
-            self.time_step += 1
-            return False
-        else:
-            print("update failed")
-            return True
+        #finish 여부를 확인
+        
+        whole_state = UpdateManager.update_phase(whole_state)
+        whole_state = UpdateManager.update_finished(whole_state)        
+        # whole_state를 pedestrians에 저장
+        self.after_step(whole_state, next_group_state)
+        
+        
+        return False        
+
+    def before_step(self):
+        return
 
     # 힘을 계산하고, 힘에 의한 위치 변화 및 속도 변화를 다음 state로 결과를 만듦
     # visible state + force -> new_state
@@ -124,14 +139,16 @@ class Simulator(object):
         next_state, next_group_state = self.peds.step(force, visible_state)                
         return next_state, next_group_state
 
-    
     def after_step(self, next_state, next_group_state):
         # Pedestrian에 결과를 업데이트
-        is_updated = self.peds_info.update(next_state, next_group_state, self.time_step)        
-        return is_updated
+        self.pedestrians.update(next_state, next_group_state, self.time_step)        
+        self.pedestrians.update_target_pos()
+        # target_phase 변경
+        self.time_step += 1
+        return True
 
     def check_finish(self):        
-        return np.sum(self.peds_info.check_finished())
+        return np.sum(self.pedestrians.check_finished())
 
     def set_step_width(self):
         new_step_width = 0
@@ -155,18 +172,18 @@ class Simulator(object):
         time = 0
         result_data[0] = {
             "step_width": time,
-            "states": self.peds_info.states[0].tolist()
+            "states": self.pedestrians.states[0].tolist()
         }
         
         for i in range(0, len(self.step_width_list)):
             time += self.step_width_list[i]
             result_data[i+1] = {
                 "step_width": time,
-                "states": self.peds_info.states[i+1].tolist()
+                "states": self.pedestrians.states[i+1].tolist()
             }
         
         with open(file_path, 'w') as f:
-            json.dump(result_data, f, indent=4)
+            json.dump(result_data, f, indent=4)        
         return
 
     def summary_to_json(self, file_path, success):

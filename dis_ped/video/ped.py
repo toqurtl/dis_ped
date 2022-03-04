@@ -12,7 +12,7 @@ class PedAgent(object):
         self.start_time = base_data.get(Index.start_time.str_name)
         self.states = []
         self.phase = 0        
-        self.final_phase = ped_info["final_phase"]
+        self.final_phase = ped_info["final_phase"]        
         self.goal_schedule = ped_info["goal_schedule"]
         self._initialize()
 
@@ -35,7 +35,7 @@ class PedAgent(object):
     """ state 추가"""
     def update(self, new_whole_state):           
         new_state = new_whole_state[self.id]
-        return True, np.squeeze(new_state)
+        return np.squeeze(new_state)
 
     """property들"""
     @property
@@ -61,15 +61,23 @@ class PedAgent(object):
     def vy(self):
         return self.current_state[Index.vy.index]
 
-    # TODO - 나중에 step을 받아서 판단하도록 해야함
     @property
-    def gx(self):
-        return self.current_state[Index.gx.index]
+    def current_phase(self):
+        return str(int(self.current_state[Index.phase.index]))
 
-    # TODO - 나중에 step을 받아서 판단하도록 해야함
+    @property
+    def gx(self):         
+        if self.current_phase in self.goal_schedule.keys():      
+            return self.goal_schedule[self.current_phase]["tx"]
+        else:            
+            return self.goal_schedule[self.final_phase]["tx"]
+    
     @property
     def gy(self):
-        return self.current_state[Index.gy.index]
+        if self.current_phase in self.goal_schedule.keys():
+            return self.goal_schedule[self.current_phase]["ty"]
+        else:
+            return self.goal_schedule[self.final_phase]["ty"]
 
     @property
     def finished(self):

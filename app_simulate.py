@@ -21,25 +21,27 @@ else:
 
 file_finder = FileFinder(config_path)
 exp = ExperimentSetting(config_path, idx)
-try:       
-    s = Simulator(exp)
-    s.simulate()
-    s.result_to_json(file_finder.simul_result_path(idx))
-    if s.time_step > file_finder.simul_time_threshold:
-        file_finder.summary_to_json(idx, False)
-        print("simul_time_threshold!")
-    else:
-        file_finder.summary_to_json(idx, True)
-        if is_animated:
-            with SceneVisualizer(s.peds, s, exp.animation_path) as sv:
-                sv.animate()        
-            with SceneVisualizer(s.peds, s, exp.plot_path) as sv:
-                sv.plot()
+# try:
 
-except Exception as e:
+s = Simulator(exp)
+
+s.simulate()
+s.result_to_json(file_finder.simul_result_path(idx))
+if s.time_step > file_finder.simul_time_threshold:
     file_finder.summary_to_json(idx, False)
-    print("error during simulation")
-    print(e)    
+    print("simul_time_threshold!")
+else:
+    file_finder.summary_to_json(idx, True)
+    if is_animated:
+        with SceneVisualizer(s.peds, s, exp.animation_path) as sv:
+            sv.animate()        
+        with SceneVisualizer(s.peds, s, exp.plot_path) as sv:
+            sv.plot()
+
+# except Exception as e:
+#     file_finder.summary_to_json(idx, False)
+#     print("error during simulation")
+#     print(e)
     
 
 

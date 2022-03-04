@@ -8,16 +8,22 @@ class UpdateManager(object):
     def is_started(cls, state: np.ndarray, time_step):
         return state[:, Index.start_time.index] <= time_step
 
+    # target point에 도달했는지 확인(gx - px)
     @classmethod
     def is_arrived(cls, state: np.ndarray):
         vecs = state[:,4:6] - state[:, 0:2]        
         distance_to_target = np.array([np.linalg.norm(line) for line in vecs])
-        return distance_to_target < 0.5
+        return distance_to_target < 0.3
+
+    @classmethod
+    def is_final_phase(cls, state: np.ndarray):
+        return state[:, Index.final_phase.index] < state[:, Index.phase.index]
 
     # TODO - 여러 목적지일 때는 변경해야 함
     @classmethod
     def is_finished(cls, state: np.ndarray):        
-        return cls.is_arrived(state)
+        a = cls.is_final_phase(state)
+        return len(a) == np.sum(a)
 
     @classmethod
     def is_visible(cls, state: np.ndarray, time_step):
@@ -28,12 +34,20 @@ class UpdateManager(object):
     # get_idx functions
     @classmethod
     def update_finished(cls, state: np.ndarray):
+        # finished된 agent들을 체크해서, finished/visible 상태를 변경
         finish_cond = cls.is_finished(state)        
         state[:, Index.finished.index] = finish_cond * 1
         for idx, data in enumerate(state):  
             if data[Index.id.index] in cls.finished_idx(state):
                 state[idx][Index.visible.index] = 0        
         return state
+
+    @classmethod
+    def update_phase(cls, state: np.ndarray):
+        arrived_cond = cls.is_arrived(state) * 1
+        state[:, Index.phase.index] = state[:, Index.phase.index] + arrived_cond
+        print(arrived_cond)
+        return state        
 
     @classmethod
     def update_visible(cls, state: np.ndarray, time_step):
@@ -48,6 +62,7 @@ class UpdateManager(object):
                 state[idx][Index.visible.index] = 1
         return state
 
+    # 업데이트된 visible state를 whole state에 반영
     @classmethod
     def new_state(cls, whole_state, next_state):
         id_index = next_state[:, Index.id.index].astype(np.int64)        

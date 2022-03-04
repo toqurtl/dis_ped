@@ -13,6 +13,8 @@ class DataIndex(Enum):
     start_time = ("start_time", 9)    
     id = ("id", 10)
     finished = ("finished", 11)
+    phase = ("phase", 12)
+    final_phase = ("final_phase", 13)
 
     def __init__(self, str_name, index):
         self.str_name = str_name

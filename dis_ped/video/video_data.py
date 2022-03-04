@@ -91,14 +91,16 @@ class VideoData(object):
         state["px"], state["py"] = self.initial_pos(person_idx)
         state["vx"] = self.initial_speed[person_idx][0]
         state["vy"] = self.initial_speed[person_idx][1]
-        state["gx"] = self.goal_schedule(person_idx)["0"]["tx"]
-        state["gy"] = self.goal_schedule(person_idx)["0"]["ty"]
+        state["gx"] = self.goal_schedule(person_idx)[0]["tx"]
+        state["gy"] = self.goal_schedule(person_idx)[0]["ty"]
         state["distancing"] = 2
         start, _ = self.represent_time(person_idx)
         state["start_time"] = start
         state["visible"] = int(start == 0)
         state["tau"] = 0.5
         state["finished"] = 0
+        state["phase"] = 0
+        state["final_phase"] = self.final_phase(person_idx)
         return state
             
     def ground_truth(self):
@@ -135,12 +137,12 @@ class VideoData(object):
         return info
 
     def ped_info_of_person(self, person_idx):
-        start, _ = self.represent_time(person_idx)
+        start, _ = self.represent_time(person_idx)        
         return {            
                 "goal_schedule": self.goal_schedule(person_idx),
                 "num_phase": self.num_phase(person_idx),
                 "final_phase": self.final_phase(person_idx),
-                "start_time": start
+                "start_time": start                
             }
 
         
@@ -173,51 +175,51 @@ class VideoData(object):
         gx, gy = self.final_pos(person_idx)
         if -1.5 < px < 0 and -1.2 < py < 0  and gy > 0:
             return {
-                "0":{
+                0:{
                     "tx": 0,
                     "ty": -0.6
                 },
-                "1":{
+                1:{
                     "tx": gx,
                     "ty": gy
                 }
             }
         elif -1.5 < gx < 0 and -1.2 < gy < 0 and py > 0:
             return {
-                "0":{
+                0:{
                     "tx": 0,
                     "ty": -0.6
                 },
-                "1":{
+                1:{
                     "tx": gx,
                     "ty": gy
                 }
             }
         elif -1.5 < px < 0 and 6 < py < 7.2 and gy > 7.5:
             return {
-                "0":{
+                0:{
                     "tx": 0,
                     "ty": 6.6
                 },
-                "1":{
+                1:{
                     "tx": gx,
                     "ty": gy
                 }
             }
         elif -1.5 < gx < 0 and 6 < gy < 7.2 and py > 7.5:
             return {
-                "0":{
+                0:{
                     "tx": 0,
                     "ty": 6.6
                 },
-                "1":{
+                1:{
                     "tx": gx,
                     "ty": gy
                 }
             }
         else:            
             return {
-                "0":{
+                0:{
                     "tx": gx,
                     "ty": gy
                 }

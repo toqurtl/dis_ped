@@ -71,8 +71,8 @@ class SceneVisualizer:
     ):
         self.scene = scene
         self.simulator = simulator        
-        self.states = np.array(self.simulator.peds_info.states)
-        self.group_states = self.simulator.peds_info.group_states
+        self.states = np.array(self.simulator.pedestrians.states)
+        self.group_states = self.simulator.pedestrians.group_states
         self.cmap = cmap
         self.agent_colors = agent_colors
         self.frames = len(self.states)        

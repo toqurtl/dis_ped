@@ -3,6 +3,7 @@ from typing import List
 import numpy as np
 from dis_ped.utils import stateutils
 
+
 """계산기로 변경"""
 
 class PedState:
@@ -17,8 +18,7 @@ class PedState:
         self.initial_speeds = None
         self.current_state = None
         self.ped_states = []
-        self.group_states = []
-        self.time_step = 0
+        self.group_states = []        
     
     @property
     def state(self):
@@ -58,8 +58,9 @@ class PedState:
         # desired velocity
         desired_velocity = self.vel() + self.step_width * force                
         desired_velocity = self.capped_velocity(desired_velocity, self.max_speeds)        
-        # stop when arrived
-        desired_velocity[stateutils.desired_directions(self.state)[1] < 0.3] = [0, 0]        
+        # stop when arrived(이 부분에서 멈추는 현상 발생)
+
+        # desired_velocity[stateutils.desired_directions(self.state)[1] < 0.3] = [0, 0]        
         
         visible_state[:, 0:2] += desired_velocity * self.step_width        
         visible_state[:, 2:4] = desired_velocity
