@@ -195,7 +195,7 @@ class VideoData(object):
                     "ty": gy
                 }
             }
-        elif -1.5 < px < 0 and 6 < py < 7.2 and gy > 7.5:
+        elif -1.5 < px < 0 and 6 < py < 7.2 and gy > 7.2:
             return {
                 0:{
                     "tx": 0,
@@ -206,7 +206,7 @@ class VideoData(object):
                     "ty": gy
                 }
             }
-        elif -1.5 < gx < 0 and 6 < gy < 7.2 and py > 7.5:
+        elif -1.5 < gx < 0 and 6 < gy < 7.2 and py > 7.2:
             return {
                 0:{
                     "tx": 0,

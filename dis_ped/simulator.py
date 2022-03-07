@@ -91,7 +91,7 @@ class Simulator(object):
         
         # 모든 agent가 끝나면 종료
         # if self.check_finish():
-        if UpdateManager.is_finished(whole_state):
+        if UpdateManager.simul_finished(whole_state):
             return True
         # goal schedule을 확인해서 update
         
@@ -121,6 +121,7 @@ class Simulator(object):
         
         whole_state = UpdateManager.update_phase(whole_state)
         whole_state = UpdateManager.update_finished(whole_state)        
+        # print(whole_state)
         # whole_state를 pedestrians에 저장
         self.after_step(whole_state, next_group_state)
         

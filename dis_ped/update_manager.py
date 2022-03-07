@@ -22,8 +22,11 @@ class UpdateManager(object):
     # TODO - 여러 목적지일 때는 변경해야 함
     @classmethod
     def is_finished(cls, state: np.ndarray):        
-        a = cls.is_final_phase(state)
-        return len(a) == np.sum(a)
+        return np.logical_and(cls.is_final_phase(state), cls.is_arrived(state))        
+
+    @classmethod
+    def simul_finished(cls, state:np.ndarray):
+        return np.sum(state[:, Index.finished.index]) == len(state)
 
     @classmethod
     def is_visible(cls, state: np.ndarray, time_step):
@@ -45,8 +48,8 @@ class UpdateManager(object):
     @classmethod
     def update_phase(cls, state: np.ndarray):
         arrived_cond = cls.is_arrived(state) * 1
-        state[:, Index.phase.index] = state[:, Index.phase.index] + arrived_cond
-        print(arrived_cond)
+        final_phase_cond = np.logical_not(cls.is_final_phase(state)) * 1
+        state[:, Index.phase.index] = state[:, Index.phase.index] + arrived_cond * final_phase_cond
         return state        
 
     @classmethod
