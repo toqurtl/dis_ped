@@ -13,7 +13,7 @@ class UpdateManager(object):
     def is_arrived(cls, state: np.ndarray):
         vecs = state[:,4:6] - state[:, 0:2]        
         distance_to_target = np.array([np.linalg.norm(line) for line in vecs])
-        return distance_to_target < 0.3
+        return distance_to_target < 0.5
 
     @classmethod
     def is_final_phase(cls, state: np.ndarray):

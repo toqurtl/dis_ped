@@ -37,6 +37,9 @@ class FileFinder(object):
     def result_csv_path(self, name):
         return os.path.join(self.result_path, "result_"+name+".csv")
 
+    def result_xlsx_path(self, name):
+        return os.path.join(self.result_path, "result_"+name+".xlsx")
+
     @property
     def simul_time_threshold(self):
         return self.cfg.simul_time_threshold
