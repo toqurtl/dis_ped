@@ -1,0 +1,21 @@
+{
+    "path":{
+        "vid_folder_path": "C:\\Users\\yoon9\\OneDrive\\연구\\pandemic\\data\\ped_texas\\processing\\opossite",
+        "result_folder_path": "C:\\Users\\yoon9\\workspace\\ped_exp\\test"
+    },
+    "obstacles":[
+        [4, 4, -5, 14],
+        [-4, -4, -5, 0], 
+        [-4, -4, 2, 9], 
+        [-4, -4, 11, 14],
+        [-3.5, -5, 2, 2],
+        [-3.5, -5, 9, 9]
+    ],
+    "forces":{
+        "force_save": true
+    },
+    "condition":{
+        "simul_time_threshold": 300
+    }
+
+}

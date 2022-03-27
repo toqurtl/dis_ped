@@ -3,6 +3,7 @@ import sys
 import json
 import csv
 import pandas as pd
+from xlsxwriter.workbook import Workbook
 
 file_path = sys.argv[1]
 
@@ -33,10 +34,21 @@ for vid_idx, result in data["result"].items():
     wr.writerow(row)
 
 f.close()
+print(csv_file_name)
 
-r_csv = pd.read_csv(csv_file_name)
-save_xlsx = pd.ExcelWriter(finder.result_xlsx_path(name))
-r_csv.to_excel(save_xlsx, index = False) # xlsx 파일로 변환
-save_xlsx.save()
+wb=Workbook(finder.result_xlsx_path(name))
+ws=wb.add_worksheet()
+with open(csv_file_name,'rt',encoding='utf8') as f:
+    reader=csv.reader(f)
+    for r, row in enumerate(reader):
+        for c, col in enumerate(row):            
+            ws.write(r,c,col)
+wb.close()
+
+
+# r_csv = pd.read_csv(csv_file_name)
+# save_xlsx = pd.ExcelWriter(finder.result_xlsx_path(name))
+# r_csv.to_excel(save_xlsx, index = False) # xlsx 파일로 변환
+# save_xlsx.save()
 
 
