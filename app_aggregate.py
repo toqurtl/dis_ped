@@ -3,7 +3,7 @@ import sys
 import json
 import csv
 import pandas as pd
-from xlsxwriter.workbook import Workbook
+# from xlsxwriter.workbook import Workbook
 
 file_path = sys.argv[1]
 
@@ -36,14 +36,14 @@ for vid_idx, result in data["result"].items():
 f.close()
 print(csv_file_name)
 
-wb=Workbook(finder.result_xlsx_path(name))
-ws=wb.add_worksheet()
-with open(csv_file_name,'rt',encoding='utf8') as f:
-    reader=csv.reader(f)
-    for r, row in enumerate(reader):
-        for c, col in enumerate(row):            
-            ws.write(r,c,col)
-wb.close()
+# wb=Workbook(finder.result_xlsx_path(name))
+# ws=wb.add_worksheet()
+# with open(csv_file_name,'rt',encoding='utf8') as f:
+#     reader=csv.reader(f)
+#     for r, row in enumerate(reader):
+#         for c, col in enumerate(row):            
+#             ws.write(r,c,col)
+# wb.close()
 
 
 # r_csv = pd.read_csv(csv_file_name)

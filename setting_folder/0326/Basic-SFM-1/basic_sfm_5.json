@@ -2,8 +2,8 @@
     "setting_id": "basic_sfm_5",
     "repulsive_force": "ped_repulsive_force",
     "path":{
-        "vid_folder_path": "C:\\Users\\yoon9\\data\\pandemic\\whole",
-        "result_folder_path": "C:\\Users\\yoon9\\workspace\\ped_experiment\\0326"
+        "vid_folder_path": "C:\\Users\\toqurtl\\snucem\\exp\\whole",
+        "result_folder_path": "C:\\Users\\toqurtl\\snucem\\exp\\result\\0326"
     },
     "obstacles":[
         [5.15, 5.15, -8, 16],

@@ -2,8 +2,8 @@
     "setting_id": "social_sfm_2_1",
     "repulsive_force": "my_force_2",
     "path":{
-        "vid_folder_path": "C:\\Users\\yoon9\\data\\pandemic\\whole",
-        "result_folder_path": "C:\\Users\\yoon9\\workspace\\ped_experiment\\0326"
+        "vid_folder_path": "C:\\Users\\toqurtl\\snucem\\exp\\whole",
+        "result_folder_path": "C:\\Users\\toqurtl\\snucem\\exp\\result\\0326"
     },
     "obstacles":[
         [5.15, 5.15, -8, 16],
