@@ -35,7 +35,9 @@ class PedAgent(object):
     """ state 추가"""
     def update(self, new_whole_state):           
         new_state = new_whole_state[self.id]
-        return np.squeeze(new_state)
+        new_state = np.squeeze(new_state)
+        self.states.append(new_state)
+        return new_state
 
     """property들"""
     @property
@@ -66,18 +68,18 @@ class PedAgent(object):
         return str(int(self.current_state[Index.phase.index]))
 
     @property
-    def gx(self):         
+    def gx(self):
         if self.current_phase in self.goal_schedule.keys():      
             return self.goal_schedule[self.current_phase]["tx"]
         else:            
-            return self.goal_schedule[self.final_phase]["tx"]
+            return self.goal_schedule[str(self.final_phase)]["tx"]
     
     @property
     def gy(self):
         if self.current_phase in self.goal_schedule.keys():
             return self.goal_schedule[self.current_phase]["ty"]
         else:
-            return self.goal_schedule[self.final_phase]["ty"]
+            return self.goal_schedule[str(self.final_phase)]["ty"]
 
     @property
     def finished(self):

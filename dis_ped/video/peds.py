@@ -40,7 +40,7 @@ class Pedestrians(object):
         if next_group_state is None:
             self.group_states.append([])
         else:    
-            self.group_states.append(next_group_state)
+            self.group_states.append(next_group_state)        
         self.states.append(np.array(new_state_list))            
         return
 
@@ -52,7 +52,7 @@ class Pedestrians(object):
         gx_list, gy_list = [], []
         for idx, ped in self.peds.items():
             gx_list.append(ped.gx)
-            gy_list.append(ped.gy)
+            gy_list.append(ped.gy)            
         return np.array(gx_list), np.array(gy_list)
 
     def update_target_pos(self):

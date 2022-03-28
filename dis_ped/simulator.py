@@ -120,11 +120,9 @@ class Simulator(object):
         #finish 여부를 확인
         
         whole_state = UpdateManager.update_phase(whole_state)
-        whole_state = UpdateManager.update_finished(whole_state)        
-        # print(whole_state)
+        whole_state = UpdateManager.update_finished(whole_state)
         # whole_state를 pedestrians에 저장
-        self.after_step(whole_state, next_group_state)
-        
+        self.after_step(whole_state, next_group_state)        
         
         return False        
 
@@ -142,6 +140,7 @@ class Simulator(object):
 
     def after_step(self, next_state, next_group_state):
         # Pedestrian에 결과를 업데이트
+        # 여기서 pedestrian 정보를 이용, goal schedule을 수정
         self.pedestrians.update(next_state, next_group_state, self.time_step)        
         self.pedestrians.update_target_pos()
         # target_phase 변경

@@ -53,10 +53,45 @@ compare_data_idx["state"] = {}
 compare_data_idx["state"]["setting_id"] = config.setting_id
 compare_data_idx["state"]["repulsive_force"] = config.repulsive_force
 
+compare_data_idx["state"]["total"]= {
+    "ade":0,
+    "dtw":0,
+    "social":0,
+    "ctn":0
+}
+compare_data_idx["state"]["low"]= {
+    "ade":0,
+    "dtw":0,
+    "ctn":0
+}
+compare_data_idx["state"]["high"]= {
+    "ade":0,
+    "dtw":0,
+    "ctn":0
+}
+compare_data_idx["state"]["many_person"]= {
+    "ade":0,
+    "dtw":0,
+    "ctn":0
+}
+compare_data_idx["state"]["few_person"]= {
+    "ade":0,
+    "dtw":0,
+    "ctn":0
+}
+compare_data_idx["state"]["sdcr"] = {
+    "ade":0,
+    "dtw":0,
+    "ctn":0
+}
+
+
 compare_data_idx["result"] = {}
 
 ade_avg, ade_avg_high, ade_avg_low = 0, 0, 0
 dtw_avg, dtw_avg_high, dtw_avg_low = 0, 0, 0
+ade_low_error, dtw_low_error = 0, 0
+ade_high_error, dtw_high_error = 0, 0
 social_avg =0
 ctn, ctn_high, ctn_low = 0, 0, 0
 for idx in idx_list:
@@ -71,52 +106,60 @@ for idx in idx_list:
     social = data["result"]["social"]
     success = data["result"]["success"]
     vid_social = data["basic"]["social"]
+    sdcr_error = data["result"]["sdcr_error"]
+    num_person = data["basic"]["num_person"]
     compare_data_idx["result"][idx]["vid_info"]["vid_idx"] = idx
     compare_data_idx["result"][idx]["vid_info"]["gt_time"] = data["basic"]["gt_time"]
-    compare_data_idx["result"][idx]["vid_info"]["num_person"] = data["basic"]["num_person"]
+    compare_data_idx["result"][idx]["vid_info"]["num_person"] = num_person
     compare_data_idx["result"][idx]["vid_info"]["social"] = vid_social
     compare_data_idx["result"][idx]["simul_result"]["success"] = success
     compare_data_idx["result"][idx]["simul_result"]["simul_time"] = data["result"]["simulation_time"]
     compare_data_idx["result"][idx]["simul_result"]["ade"] = ade
     compare_data_idx["result"][idx]["simul_result"]["dtw"] = dtw
     compare_data_idx["result"][idx]["simul_result"]["social"] = social
-    compare_data_idx["result"][idx]["simul_result"]["sdcr_error"] = data["result"]["sdcr_error"]
-    if success:
-        ade_avg += ade
-        dtw_avg += dtw
-        social_avg += social
-        ctn += 1
+    compare_data_idx["result"][idx]["simul_result"]["sdcr_error"] = sdcr_error
+    if success:        
+        compare_data_idx["state"]["total"]["ade"] += ade
+        compare_data_idx["state"]["total"]["dtw"] += dtw
+        compare_data_idx["state"]["total"]["social"] += social
+        compare_data_idx["state"]["total"]["ctn"] += 1
         if vid_social > 0.22:
-            ade_avg_low += ade
-            dtw_avg_low += dtw
-            ctn_low += 1
+            compare_data_idx["state"]["low"]["ade"] += ade
+            compare_data_idx["state"]["low"]["dtw"] += dtw
+            compare_data_idx["state"]["low"]["ctn"] += 1
         else:
-            ade_avg_high += ade
-            dtw_avg_high += dtw
-            ctn_high += 1
+            compare_data_idx["state"]["high"]["ade"] += ade
+            compare_data_idx["state"]["high"]["dtw"] += dtw
+            compare_data_idx["state"]["high"]["ctn"] += 1
+        
+        if abs(sdcr_error) < 0.1:
+            compare_data_idx["state"]["sdcr"]["ade"] += ade
+            compare_data_idx["state"]["sdcr"]["dtw"] += dtw
+            compare_data_idx["state"]["sdcr"]["ctn"] += 1
+        
+        if num_person > 4:
+            compare_data_idx["state"]["many_person"]["ade"] += ade
+            compare_data_idx["state"]["many_person"]["dtw"] += dtw
+            compare_data_idx["state"]["many_person"]["ctn"] += 1
+        else:
+            compare_data_idx["state"]["few_person"]["ade"] += ade
+            compare_data_idx["state"]["few_person"]["dtw"] += dtw
+            compare_data_idx["state"]["few_person"]["ctn"] += 1
 
-ade_avg = ade_avg/ctn
-dtw_avg = dtw_avg/ctn
-social_avg = social_avg/ctn
-ade_avg_low, dtw_avg_low = ade_avg_low/ctn_low, dtw_avg_low/ctn_low
-ade_avg_high, dtw_avg_high = ade_avg_high/ctn_high, dtw_avg_high/ctn_high
 
-compare_data_idx["state"]["ade_avg"] = ade_avg
-compare_data_idx["state"]["dtw_avg"] = dtw_avg
-compare_data_idx["state"]["social_avg"] = social_avg
-compare_data_idx["state"]["ctn"] = ctn
-compare_data_idx["state"]["ade_avg_low"] = ade_avg_low
-compare_data_idx["state"]["dtw_avg_low"] = dtw_avg_low
-compare_data_idx["state"]["ctn_low"] = ctn_low
-compare_data_idx["state"]["ade_avg_high"] = ade_avg_high
-compare_data_idx["state"]["dtw_avg_high"] = dtw_avg_high
-compare_data_idx["state"]["ctn_high"] = ctn_high
-
-compare_data["state"]["ade_avg"] = ade_avg
-compare_data["state"]["dtw_avg"] = dtw_avg
-compare_data["state"]["social_avg"] = social_avg
-compare_data["state"]["ctn"] = ctn
-
+compare_data_idx["state"]["total"]["ade"] /= compare_data_idx["state"]["total"]["ctn"]
+compare_data_idx["state"]["total"]["dtw"] /= compare_data_idx["state"]["total"]["ctn"]
+compare_data_idx["state"]["total"]["social"] /= compare_data_idx["state"]["total"]["ctn"]
+compare_data_idx["state"]["low"]["ade"] /= compare_data_idx["state"]["low"]["ctn"]
+compare_data_idx["state"]["low"]["dtw"] /= compare_data_idx["state"]["low"]["ctn"]
+compare_data_idx["state"]["high"]["ade"] /= compare_data_idx["state"]["high"]["ctn"]
+compare_data_idx["state"]["high"]["dtw"] /= compare_data_idx["state"]["high"]["ctn"]
+compare_data_idx["state"]["sdcr"]["ade"] /= compare_data_idx["state"]["sdcr"]["ctn"]
+compare_data_idx["state"]["sdcr"]["dtw"] /= compare_data_idx["state"]["sdcr"]["ctn"]
+compare_data_idx["state"]["many_person"]["ade"] /= compare_data_idx["state"]["many_person"]["ctn"]
+compare_data_idx["state"]["many_person"]["dtw"] /= compare_data_idx["state"]["many_person"]["ctn"]
+compare_data_idx["state"]["few_person"]["ade"] /= compare_data_idx["state"]["few_person"]["ctn"]
+compare_data_idx["state"]["few_person"]["dtw"] /= compare_data_idx["state"]["few_person"]["ctn"]
 
 with open(finder.compare_path(), 'w') as f:
     json.dump(compare_data, f, indent=4)
