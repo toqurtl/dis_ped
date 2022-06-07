@@ -1,0 +1,104 @@
+{
+    "setting_id": "social_sfm_2_27",
+    "repulsive_force": "my_force_2",
+    "path": {
+        "vid_folder_path": "C:\\Users\\toqurtl\\snucem\\exp\\whole",
+        "result_folder_path": "C:\\Users\\toqurtl\\snucem\\exp\\result\\0326"
+    },
+    "obstacles": [
+        [
+            5.15,
+            5.15,
+            -8,
+            16
+        ],
+        [
+            -1.44,
+            -1.44,
+            -10,
+            -1.2
+        ],
+        [
+            -1.44,
+            -1.44,
+            0,
+            6
+        ],
+        [
+            -1.44,
+            -1.44,
+            7.2,
+            16
+        ],
+        [
+            -1.44,
+            0,
+            7.2,
+            7.2
+        ],
+        [
+            0,
+            0,
+            7.2,
+            8.2
+        ],
+        [
+            -1.44,
+            0,
+            8.2,
+            8.2
+        ],
+        [
+            -1.44,
+            0,
+            0,
+            0
+        ],
+        [
+            0,
+            0,
+            0,
+            1
+        ],
+        [
+            -1.44,
+            0,
+            1,
+            1
+        ]
+    ],
+    "scene": {
+        "enable_group": true,
+        "agent_radius": 0.35,
+        "step_width": 0.65,
+        "max_speed_multiplier": 1.1,
+        "tau": 0.5,
+        "resolution": 10
+    },
+    "forces": {
+        "force_save": true,
+        "set": {
+            "desired_force": {
+                "factor": 1.0,
+                "relaxation_time": 0.5,
+                "goal_threshold": 0.2
+            },
+            "obstacle_force": {
+                "factor": 10.0,
+                "sigma": 0.2,
+                "threshold": 0.2
+            },
+            "my_force_2": {
+                "factor": 1,
+                "desired_distance": 2.4,
+                "small_alpha": 20,
+                "alpha": 2000,
+                "beta": 0.08,
+                "lambda": 0.5
+            }
+        }
+    },
+    "condition": {
+        "simul_time_threshold": 1000
+    }
+}

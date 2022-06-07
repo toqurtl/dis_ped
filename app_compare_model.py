@@ -21,7 +21,7 @@ wr.writerow(first_row)
 
 
 for folder_name in os.listdir(folder_path):
-    if folder_name.split(".")[-1] != "csv" and folder_name.split(".")[-1] != "xlsx":
+    if folder_name.split(".")[-1] != "csv" and folder_name.split(".")[-1] != "xlsx" and folder_name.split(".")[-1] != "json":
         model_path = os.path.join(folder_path, folder_name)
         print(model_path)
         if file_name in os.listdir(model_path):

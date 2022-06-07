@@ -458,3 +458,10 @@ class MyforceThird(Force):
 
     def _name(self):
         return "my_force_3"
+    
+class OtherForce(Force):
+    def _get_force(self):               
+        distance_mat = CustomUtils.get_distance_matrix(self.peds)
+
+    def _name(self):
+        return "other_force"
